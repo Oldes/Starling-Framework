@@ -46,7 +46,7 @@ package starling.display
         /** Creates a quad with a texture mapped onto it. */
         public function Image(texture:Texture)
         {
-            touchable = false; //OLDES: Just for my purposes! In most cases I don't require Image to catch events.
+            //touchable = false; //OLDES: Just for my purposes! In most cases I don't require Image to catch events.
             if (texture)
             {
                 var frame:Rectangle = texture.frame;
@@ -80,10 +80,10 @@ package starling.display
         }
 		
         /** Creates copy of an existing image. */
-        public function clone():Image
+        /*public function clone():Image
         {
             return new Image(texture);
-        }
+        }*/
 
         /** @inheritDoc */
         protected override function onVertexDataChanged():void
