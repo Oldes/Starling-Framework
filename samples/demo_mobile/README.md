@@ -1,18 +1,16 @@
 How to build this Sample
 ========================
 
-This folder contains additional source code and assets that allow you to deploy the standard demo project on the iPhone.
+The mobile demo shows some of the features of Starling. It runs on both iOS and Android devices.
 
-In Flash Builder, create a new "ActionScript Mobile" project, and add the following source paths:
+This folder contains just the Startup-code and AIR settings. The rest of the code, as well as the assets, are found in the "demo" folder, and needs to be referenced in your project.
 
-* the "src" directory of the standard demo project and
-* the "media" directory of the iOS demo project.
+If you are working with Flash Builder, import the project contained in this folder and update the referenced source paths. If you are using another IDE/editor, create a project that is based in this folder and add the following source paths to your project:
 
-Then exchange the source files that were created by the Flash Builder project wizard with the source files in the "src" folder of the iOS demo project. Use "Startup_iOS" as the startup class.
+  * '../demo/src' -> the actual code of the demo
+  * '../demo/media' -> the assets of the demo
+  * '../demo/system' -> the system graphics (icons, launch images) of the demo
 
-**Note:** You will need AIR 3.2 to deploy AIR applications on a mobile device. Furthermore, you need a developer certificate and provisioning profiles, both of which can be acquired from Apple when you are a member of the iOS Developer program. 
+Starling itself can either be linked via a source path, or by referencing its swc file.
 
-Known Issues:
--------------
-
-* AIR 3.2 causes problems when you try to run/debug the app in the device simulator: you need to set "fullscreen" to "false" in the app's configuration file to see any rendering output. This is fixed in AIR 3.3.
+**Note:** You need at least AIR 3.2 to deploy AIR applications on a mobile device. Furthermore, you need the development certificates and profiles (provided by Apple or Google).

@@ -25,27 +25,28 @@ package starling.animation
      */ 
     public class DelayedCall extends EventDispatcher implements IAnimatable
     {
-        private var mCurrentTime:Number = 0;
+        private var mCurrentTime:Number;
         private var mTotalTime:Number;
         private var mCall:Function;
         private var mArgs:Array;
-        private var mRepeatCount:int = 1;
+        private var mRepeatCount:int;
         
         /** Creates a delayed call. */
         public function DelayedCall(call:Function, delay:Number, args:Array=null)
         {
-            mCall = call;
-            mTotalTime = Math.max(delay, 0.0001);
-            mArgs = args;
+            reset(call, delay, args);
         }
         
-        /** Resets existing DelayedCall with new arguments */
-        public function reset(call:Function, delay:Number, args:Array=null):void
+        /** Resets the delayed call to its default values, which is useful for pooling. */
+        public function reset(call:Function, delay:Number, args:Array=null):DelayedCall
         {
-            mCall = call;
+            mCurrentTime = 0;
             mTotalTime = Math.max(delay, 0.0001);
+            mCall = call;
             mArgs = args;
             mRepeatCount = 1;
+            
+            return this;
         }
         
         /** @inheritDoc */
