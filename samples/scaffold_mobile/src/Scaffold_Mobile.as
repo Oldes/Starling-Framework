@@ -14,19 +14,21 @@ package
     import starling.utils.RectangleUtil;
     import starling.utils.formatString;
     
+    import utils.AssetManager;
+    
     [SWF(frameRate="30", backgroundColor="#000")]
     public class Scaffold_Mobile extends Sprite
     {
         // We embed the "Ubuntu" font. Beware: the 'embedAsCFF'-part IS REQUIRED!!!
-        [Embed(source="../media/fonts/Ubuntu-R.ttf", embedAsCFF="false", fontFamily="Ubuntu")]        
+        [Embed(source="/fonts/Ubuntu-R.ttf", embedAsCFF="false", fontFamily="Ubuntu")]
         private static const UbuntuRegular:Class;
         
         // Startup image for SD screens
-        [Embed(source="../system/startup.jpg")]
+        [Embed(source="/startup.jpg")]
         private static var Background:Class;
         
         // Startup image for HD screens
-        [Embed(source="../system/startup@2x.jpg")]
+        [Embed(source="/startup@2x.jpg")]
         private static var BackgroundHD:Class;
         
         private var mStarling:Starling;

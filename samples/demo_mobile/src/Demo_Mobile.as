@@ -14,8 +14,10 @@ package
     import starling.utils.RectangleUtil;
     import starling.utils.formatString;
     
+    import utils.AssetManager;
+    
     [SWF(width="320", height="480", frameRate="30", backgroundColor="#000000")]
-    public class Startup_Mobile extends Sprite
+    public class Demo_Mobile extends Sprite
     {
         // Startup image for SD screens
         [Embed(source="../../demo/system/startup.jpg")]
@@ -27,7 +29,7 @@ package
         
         private var mStarling:Starling;
         
-        public function Startup_Mobile()
+        public function Demo_Mobile()
         {
             // This project requires the sources of the "demo" project. Add them either by 
             // referencing the "demo/src" directory as a "source path", or by copying the files.

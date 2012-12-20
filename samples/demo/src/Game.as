@@ -12,12 +12,14 @@ package
     import starling.events.Event;
     import starling.events.KeyboardEvent;
     import starling.textures.Texture;
+    
+    import utils.AssetManager;
+    import utils.ProgressBar;
 
     public class Game extends Sprite
     {
-        // Embed the Ubuntu Font, which is needed in the "TextScene".
-        // Beware: the 'embedAsCFF'-part IS REQUIRED!!!
-        [Embed(source="../../demo/media/fonts/Ubuntu-R.ttf", embedAsCFF="false", fontFamily="Ubuntu")]        
+        // Embed the Ubuntu Font. Beware: the 'embedAsCFF'-part IS REQUIRED!!!
+        [Embed(source="../../demo/assets/fonts/Ubuntu-R.ttf", embedAsCFF="false", fontFamily="Ubuntu")]
         private static const UbuntuRegular:Class;
         
         private var mLoadingProgress:ProgressBar;
@@ -52,7 +54,7 @@ package
             mLoadingProgress.y = background.height * 0.7;
             addChild(mLoadingProgress);
             
-            assets.loadQueue(function onProgress(ratio:Number):void
+            assets.loadQueue(function(ratio:Number):void
             {
                 mLoadingProgress.ratio = ratio;
 
