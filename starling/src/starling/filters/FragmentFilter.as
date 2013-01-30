@@ -10,8 +10,6 @@
 
 package starling.filters
 {
-    import com.adobe.utils.AGALMiniAssembler;
-    
     import flash.display3D.Context3D;
     import flash.display3D.Context3DProgramType;
     import flash.display3D.Context3DVertexBufferFormat;
@@ -148,6 +146,7 @@ package starling.filters
         /** Disposes the filter (programs, buffers, textures). */
         public function dispose():void
         {
+            Starling.current.stage3D.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
             if (mVertexBuffer) mVertexBuffer.dispose();
             if (mIndexBuffer)  mIndexBuffer.dispose();
             disposePassTextures();
@@ -466,17 +465,7 @@ package starling.filters
             if (fragmentShader == null) fragmentShader = STD_FRAGMENT_SHADER;
             if (vertexShader   == null) vertexShader   = STD_VERTEX_SHADER;
             
-            var vertexProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
-            vertexProgramAssembler.assemble(Context3DProgramType.VERTEX, vertexShader);
-            
-            var fragmentProgramAssembler:AGALMiniAssembler = new AGALMiniAssembler();
-            fragmentProgramAssembler.assemble(Context3DProgramType.FRAGMENT, fragmentShader);
-            
-            var context:Context3D = Starling.context;
-            var program:Program3D = context.createProgram();
-            program.upload(vertexProgramAssembler.agalcode, fragmentProgramAssembler.agalcode);          
-            
-            return program;
+            return RenderSupport.assembleAgal(vertexShader, fragmentShader);
         }
         
         // cache
