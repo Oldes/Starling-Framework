@@ -74,6 +74,8 @@ package starling.display
         
         // construction
         
+        public var dispatching:Boolean = true;
+        
         /** @private */
         public function DisplayObjectContainer()
         {
@@ -118,13 +120,15 @@ package starling.display
                 else                      mChildren.splice(index, 0, child);
                 
                 child.setParent(this);
-                child.dispatchEventWith(Event.ADDED, true);
-                
-                if (stage)
-                {
-                    var container:DisplayObjectContainer = child as DisplayObjectContainer;
-                    if (container) container.broadcastEventWith(Event.ADDED_TO_STAGE);
-                    else           child.dispatchEventWith(Event.ADDED_TO_STAGE);
+                if (dispatching) {
+                    child.dispatchEventWith(Event.ADDED, true);
+                    
+                    if (stage)
+                    {
+                        var container:DisplayObjectContainer = child as DisplayObjectContainer;
+                        if (container) container.broadcastEventWith(Event.ADDED_TO_STAGE);
+                        else           child.dispatchEventWith(Event.ADDED_TO_STAGE);
+                    }
                 }
                 
                 return child;
@@ -155,22 +159,28 @@ package starling.display
                 
                 
                 child.setParent(this);
-                child.dispatchEventWith(Event.ADDED, true);
-                if(prevChild) prevChild.dispatchEventWith(Event.REMOVED, true);
-                
-                if (stage)
-                {
-                    var container:DisplayObjectContainer;
-                    container = child as DisplayObjectContainer;
-                    if (container) container.broadcastEventWith(Event.ADDED_TO_STAGE);
-                    else           child.dispatchEventWith(Event.ADDED_TO_STAGE);
+                if (dispatching) {
+                    child.dispatchEventWith(Event.ADDED, true);
+                    if (prevChild) prevChild.dispatchEventWith(Event.REMOVED, true);
+                    
+                    if (stage)
+                    {
+                        var container:DisplayObjectContainer;
+                        container = child as DisplayObjectContainer;
+                        if (container) container.broadcastEventWith(Event.ADDED_TO_STAGE);
+                        else           child.dispatchEventWith(Event.ADDED_TO_STAGE);
+                    }
                 }
+                
+                
                 if (prevChild)
                 {
-                    if (stage) {
-                        container = prevChild as DisplayObjectContainer;
-                        if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
-                        else           prevChild.dispatchEventWith(Event.REMOVED_FROM_STAGE);
+                    if (dispatching) {
+                        if (stage) {
+                            container = prevChild as DisplayObjectContainer;
+                            if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
+                            else           prevChild.dispatchEventWith(Event.REMOVED_FROM_STAGE);
+                        }
                     }
                     prevChild.setParent(null);
                     if (dispose) prevChild.dispose();
@@ -200,14 +210,17 @@ package starling.display
             if (index >= 0 && index < numChildren)
             {
                 var child:DisplayObject = mChildren[index];
-                child.dispatchEventWith(Event.REMOVED, true);
-                
-                if (stage)
-                {
-                    var container:DisplayObjectContainer = child as DisplayObjectContainer;
-                    if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
-                    else           child.dispatchEventWith(Event.REMOVED_FROM_STAGE);
+                if (dispatching) {
+                    child.dispatchEventWith(Event.REMOVED, true);
+                    
+                    if (stage)
+                    {
+                        var container:DisplayObjectContainer = child as DisplayObjectContainer;
+                        if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
+                        else           child.dispatchEventWith(Event.REMOVED_FROM_STAGE);
+                    }
                 }
+                 
                 
                 child.setParent(null);
                 index = mChildren.indexOf(child); // index might have changed by event handler
@@ -395,6 +408,7 @@ package starling.display
         /** Dispatches an event on all children (recursively). The event must not bubble. */
         public function broadcastEvent(event:Event):void
         {
+            if (!dispatching) return;
             if (event.bubbles)
                 throw new ArgumentError("Broadcast of bubbling events is prohibited");
             
@@ -417,6 +431,7 @@ package starling.display
          *  The method uses an internal pool of event objects to avoid allocations. */
         public function broadcastEventWith(type:String, data:Object=null):void
         {
+            if (!dispatching) return;
             var event:Event = Event.fromPool(type, false, data);
             broadcastEvent(event);
             Event.toPool(event);
