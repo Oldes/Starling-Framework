@@ -18,6 +18,8 @@ package starling.display
     import starling.events.Event;
     import starling.utils.MatrixUtil;
     import starling.utils.RectangleUtil;
+	
+	import apparat.math.FastMath;
 
     /** Dispatched on all children when the object is flattened. */
     [Event(name="flatten", type="starling.events.Event")]
@@ -145,10 +147,10 @@ package starling.display
                     case 3: x = mClipRect.right; y = mClipRect.bottom; break;
                 }
                 var transformedPoint:Point = MatrixUtil.transformCoords(transMatrix, x, y, sHelperPoint);
-                minX = Math.min(minX, transformedPoint.x);
-                maxX = Math.max(maxX, transformedPoint.x);
-                minY = Math.min(minY, transformedPoint.y);
-                maxY = Math.max(maxY, transformedPoint.y);
+                minX = FastMath.min(minX, transformedPoint.x);
+                maxX = FastMath.max(maxX, transformedPoint.x);
+                minY = FastMath.min(minY, transformedPoint.y);
+                maxY = FastMath.max(maxY, transformedPoint.y);
             }
             
             resultRect.setTo(minX, minY, maxX-minX, maxY-minY);

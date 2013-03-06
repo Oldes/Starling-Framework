@@ -17,6 +17,8 @@ package starling.animation
     import flash.utils.Dictionary;
     
     import starling.errors.AbstractClassError;
+	
+	import apparat.math.FastMath;
     
     /** The Transitions class contains static methods that define easing functions. 
      *  Those functions are used by the Tween class to execute animations.
@@ -151,7 +153,7 @@ package starling.animation
                 var p:Number = 0.3;
                 var s:Number = p/4.0;
                 var invRatio:Number = ratio - 1;
-                return -1.0 * Math.pow(2.0, 10.0*invRatio) * Math.sin((invRatio-s)*(2.0*Math.PI)/p);                
+                return -1.0 * Math.pow(2.0, 10.0*invRatio) * FastMath.sin((invRatio-s)*(2.0*Math.PI)/p);                
             }            
         }
         
@@ -162,7 +164,7 @@ package starling.animation
             {
                 var p:Number = 0.3;
                 var s:Number = p/4.0;                
-                return Math.pow(2.0, -10.0*ratio) * Math.sin((ratio-s)*(2.0*Math.PI)/p) + 1;                
+                return Math.pow(2.0, -10.0*ratio) * FastMath.sin((ratio-s)*(2.0*Math.PI)/p) + 1;                
             }            
         }
         

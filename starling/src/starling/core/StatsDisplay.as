@@ -21,6 +21,8 @@ package starling.core
     import starling.text.TextField;
     import starling.utils.HAlign;
     import starling.utils.VAlign;
+	
+	import apparat.math.FastMath;
     
     /** A small, lightweight box that displays the current framerate, memory consumption and
      *  the number of draw calls per frame. The display is updated automatically once per frame. */
@@ -86,7 +88,7 @@ package starling.core
             
             mTextField.text = "FPS: " + mFps.toFixed(mFps < 100 ? 1 : 0) + 
                             "\nMEM: " + mMemory.toFixed(mMemory < 100 ? 1 : 0) +
-                            "\nDRW: " + Math.max(0, mDrawCount - 2); // ignore self 
+                            "\nDRW: " + FastMath.max(0, mDrawCount - 2); // ignore self 
         }
         
         /** The number of Stage3D draw calls per second. */

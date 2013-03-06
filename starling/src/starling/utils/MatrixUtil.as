@@ -15,6 +15,8 @@ package starling.utils
     import flash.geom.Point;
     
     import starling.errors.AbstractClassError;
+	
+	import apparat.math.FastMath;
 
     /** A utility class containing methods related to the Matrix class. */
     public class MatrixUtil
@@ -66,10 +68,10 @@ package starling.utils
          */
         public static function skew(matrix:Matrix, skewX:Number, skewY:Number):void
         {
-            var sinX:Number = Math.sin(skewX);
-            var cosX:Number = Math.cos(skewX);
-            var sinY:Number = Math.sin(skewY);
-            var cosY:Number = Math.cos(skewY);
+            var sinX:Number = FastMath.sin(skewX);
+            var cosX:Number = FastMath.cos(skewX);
+            var sinY:Number = FastMath.sin(skewY);
+            var cosY:Number = FastMath.cos(skewY);
             
             matrix.setTo(matrix.a  * cosY - matrix.b  * sinX,
                          matrix.a  * sinY + matrix.b  * cosX,
@@ -108,8 +110,8 @@ package starling.utils
         /** Prepends an incremental rotation to a Matrix object (angle in radians). */
         public static function prependRotation(matrix:Matrix, angle:Number):void
         {
-            var sin:Number = Math.sin(angle);
-            var cos:Number = Math.cos(angle);
+            var sin:Number = FastMath.sin(angle);
+            var cos:Number = FastMath.cos(angle);
             
             matrix.setTo(matrix.a * cos + matrix.c * sin,  matrix.b * cos + matrix.d * sin,
                          matrix.c * cos - matrix.a * sin,  matrix.d * cos - matrix.b * sin,
@@ -126,10 +128,10 @@ package starling.utils
          */
         public static function prependSkew(matrix:Matrix, skewX:Number, skewY:Number):void
         {
-            var sinX:Number = Math.sin(skewX);
-            var cosX:Number = Math.cos(skewX);
-            var sinY:Number = Math.sin(skewY);
-            var cosY:Number = Math.cos(skewY);
+            var sinX:Number = FastMath.sin(skewX);
+            var cosX:Number = FastMath.cos(skewX);
+            var sinY:Number = FastMath.sin(skewY);
+            var cosY:Number = FastMath.cos(skewY);
             
             matrix.setTo(matrix.a * cosY + matrix.c * sinY,
                          matrix.b * cosY + matrix.d * sinY,

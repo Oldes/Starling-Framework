@@ -25,6 +25,8 @@ package starling.display
     import starling.events.TouchEvent;
     import starling.filters.FragmentFilter;
     import starling.utils.MatrixUtil;
+	
+	import apparat.math.FastMath;
     
     /** Dispatched when an object is added to a parent. */
     [Event(name="added", type="starling.events.Event")]
@@ -377,8 +379,8 @@ package starling.display
                     }
                     else
                     {
-                        var cos:Number = Math.cos(mRotation);
-                        var sin:Number = Math.sin(mRotation);
+                        var cos:Number = FastMath.cos(mRotation);
+                        var sin:Number = FastMath.sin(mRotation);
                         var a:Number   = mScaleX *  cos;
                         var b:Number   = mScaleX *  sin;
                         var c:Number   = mScaleY * -sin;
@@ -419,19 +421,19 @@ package starling.display
             mX = matrix.tx;
             mY = matrix.ty;
             
-            mScaleX = Math.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
+            mScaleX = FastMath.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
             mSkewY  = Math.acos(matrix.a / mScaleX);
             
-            if (!isEquivalent(matrix.b, mScaleX * Math.sin(mSkewY)))
+            if (!isEquivalent(matrix.b, mScaleX * FastMath.sin(mSkewY)))
             {
                 mScaleX *= -1;
                 mSkewY = Math.acos(matrix.a / mScaleX);
             }
             
-            mScaleY = Math.sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
+            mScaleY = FastMath.sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
             mSkewX  = Math.acos(matrix.d / mScaleY);
             
-            if (!isEquivalent(matrix.c, -mScaleY * Math.sin(mSkewX)))
+            if (!isEquivalent(matrix.c, -mScaleY * FastMath.sin(mSkewX)))
             {
                 mScaleY *= -1;
                 mSkewX = Math.acos(matrix.d / mScaleY);

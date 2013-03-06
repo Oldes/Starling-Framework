@@ -18,6 +18,8 @@ package starling.filters
     import flash.display3D.Program3D;
     
     import starling.textures.Texture;
+	
+	import apparat.math.FastMath;
     
     /** The ColorMatrixFilter class lets you apply a 4x5 matrix transformation on the RGBA color 
      *  and alpha values of every pixel in the input image to produce a result with a new set 
@@ -160,8 +162,8 @@ package starling.filters
         {
             value *= Math.PI;
             
-            var cos:Number = Math.cos(value);
-            var sin:Number = Math.sin(value);
+            var cos:Number = FastMath.cos(value);
+            var sin:Number = FastMath.sin(value);
             
             concatValues(
                 ((LUMA_R + (cos * (1 - LUMA_R))) + (sin * -(LUMA_R))), ((LUMA_G + (cos * -(LUMA_G))) + (sin * -(LUMA_G))), ((LUMA_B + (cos * -(LUMA_B))) + (sin * (1 - LUMA_B))), 0, 0,

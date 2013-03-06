@@ -393,7 +393,7 @@ package starling.utils
             
             function progress(ratio:Number):void
             {
-                onProgress(currentRatio + (1.0 / numElements) * Math.min(1.0, ratio) * 0.99);
+                onProgress(currentRatio + (1.0 / numElements) * FastMath.min(1.0, ratio) * 0.99);
             }
         }
         

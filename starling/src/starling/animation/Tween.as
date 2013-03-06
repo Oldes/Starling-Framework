@@ -14,6 +14,8 @@ package starling.animation
     import starling.core.starling_internal;
     import starling.events.Event;
     import starling.events.EventDispatcher;
+	
+	import apparat.math.FastMath;
 
     /** A Tween animates numeric properties of objects. It uses different transition functions 
      *  to give the animations various styles.
@@ -86,7 +88,7 @@ package starling.animation
         {
             mTarget = target;
             mCurrentTime = 0;
-            mTotalTime = Math.max(0.0001, time);
+            mTotalTime = FastMath.max(0.0001, time);
             mDelay = mRepeatDelay = 0.0;
             mOnStart = mOnUpdate = mOnComplete = null;
             mOnStartArgs = mOnUpdateArgs = mOnCompleteArgs = null;
@@ -149,7 +151,7 @@ package starling.animation
             var restTime:Number = mTotalTime - mCurrentTime;
             var carryOverTime:Number = time > restTime ? time - restTime : 0.0;
             
-            mCurrentTime = Math.min(mTotalTime, mCurrentTime + time);
+            mCurrentTime = FastMath.min(mTotalTime, mCurrentTime + time);
             
             if (mCurrentTime <= 0) return; // the delay is not over yet
 

@@ -13,6 +13,8 @@ package starling.utils
     import flash.geom.Rectangle;
     
     import starling.errors.AbstractClassError;
+	
+	import apparat.math.FastMath;
 
     /** A utility class containing methods related to the Rectangle class. */
     public class RectangleUtil
@@ -27,10 +29,10 @@ package starling.utils
         {
             if (resultRect == null) resultRect = new Rectangle();
             
-            var left:Number   = Math.max(rect1.x, rect2.x);
-            var right:Number  = Math.min(rect1.x + rect1.width, rect2.x + rect2.width);
-            var top:Number    = Math.max(rect1.y, rect2.y);
-            var bottom:Number = Math.min(rect1.y + rect1.height, rect2.y + rect2.height);
+            var left:Number   = FastMath.max(rect1.x, rect2.x);
+            var right:Number  = FastMath.min(rect1.x + rect1.width, rect2.x + rect2.width);
+            var top:Number    = FastMath.max(rect1.y, rect2.y);
+            var bottom:Number = FastMath.min(rect1.y + rect1.height, rect2.y + rect2.height);
             
             if (left > right || top > bottom)
                 resultRect.setEmpty();
