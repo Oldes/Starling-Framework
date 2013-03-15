@@ -10,6 +10,7 @@
 
 package starling.filters
 {
+	import apparat.math.FastMath;
     import flash.display3D.Context3D;
     import flash.display3D.Context3DProgramType;
     import flash.display3D.Program3D;
