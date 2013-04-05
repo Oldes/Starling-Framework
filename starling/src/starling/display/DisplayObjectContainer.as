@@ -142,6 +142,7 @@ package starling.display
         /** Replaces a child in the container at a certain index. */
         public function replaceChildAt(child:DisplayObject, index:int, dispose:Boolean=false):DisplayObject
         {
+			log("replaceChildAt")
             var numChildren:int = mChildren.length;
             
             if (index >= 0 && index <= numChildren)

@@ -13,8 +13,7 @@ package starling.utils
     import flash.geom.Rectangle;
     
     import starling.errors.AbstractClassError;
-	
-	import apparat.math.FastMath;
+	import starling.utils.FastMath;
 
     /** A utility class containing methods related to the Rectangle class. */
     public class RectangleUtil

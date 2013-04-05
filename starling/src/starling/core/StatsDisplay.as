@@ -22,7 +22,7 @@ package starling.core
     import starling.utils.HAlign;
     import starling.utils.VAlign;
 	
-	import apparat.math.FastMath;
+	import starling.utils.FastMath;
     
     /** A small, lightweight box that displays the current framerate, memory consumption and
      *  the number of draw calls per frame. The display is updated automatically once per frame. */

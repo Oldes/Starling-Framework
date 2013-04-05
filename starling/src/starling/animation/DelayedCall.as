@@ -13,7 +13,7 @@ package starling.animation
     import starling.events.Event;
     import starling.events.EventDispatcher;
 	
-	import apparat.math.FastMath;
+	import starling.utils.FastMath;
 
     /** A DelayedCall allows you to execute a method after a certain time has passed. Since it 
      *  implements the IAnimatable interface, it can be added to a juggler. In most cases, you 

@@ -18,7 +18,7 @@ package starling.animation
     
     import starling.errors.AbstractClassError;
 	
-	import apparat.math.FastMath;
+	import starling.utils.FastMath;
     
     /** The Transitions class contains static methods that define easing functions. 
      *  Those functions are used by the Tween class to execute animations.

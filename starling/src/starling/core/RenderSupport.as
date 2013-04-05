@@ -30,7 +30,7 @@ package starling.core
     import starling.utils.MatrixUtil;
     import starling.utils.RectangleUtil;
 	
-	import apparat.math.FastMath;
+	import starling.utils.FastMath;
 
     /** A class that contains helper methods simplifying Stage3D rendering.
      *

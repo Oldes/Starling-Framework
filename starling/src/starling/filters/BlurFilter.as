@@ -10,13 +10,13 @@
 
 package starling.filters
 {
-	import apparat.math.FastMath;
     import flash.display3D.Context3D;
     import flash.display3D.Context3DProgramType;
     import flash.display3D.Program3D;
     
     import starling.textures.Texture;
     import starling.utils.Color;
+	import starling.utils.FastMath;
 
     /** The BlurFilter applies a Gaussian blur to an object. The strength of the blur can be
      *  set for x- and y-axis separately (always relative to the stage).

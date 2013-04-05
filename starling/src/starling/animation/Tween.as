@@ -15,7 +15,7 @@ package starling.animation
     import starling.events.Event;
     import starling.events.EventDispatcher;
 	
-	import apparat.math.FastMath;
+	import starling.utils.FastMath;
 
     /** A Tween animates numeric properties of objects. It uses different transition functions 
      *  to give the animations various styles.

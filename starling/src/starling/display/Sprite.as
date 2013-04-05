@@ -19,7 +19,7 @@ package starling.display
     import starling.utils.MatrixUtil;
     import starling.utils.RectangleUtil;
 	
-	import apparat.math.FastMath;
+	import starling.utils.FastMath;
 
     /** Dispatched on all children when the object is flattened. */
     [Event(name="flatten", type="starling.events.Event")]

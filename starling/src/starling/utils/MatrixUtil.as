@@ -15,8 +15,7 @@ package starling.utils
     import flash.geom.Point;
     
     import starling.errors.AbstractClassError;
-	
-	import apparat.math.FastMath;
+	import starling.utils.FastMath;
 
     /** A utility class containing methods related to the Matrix class. */
     public class MatrixUtil

@@ -26,6 +26,7 @@ package starling.utils
     import starling.text.TextField;
     import starling.textures.Texture;
     import starling.textures.TextureAtlas;
+	import starling.utils.FastMath;
     
     /** The AssetManager handles loading and accessing a variety of asset types. You can 
      *  add assets directly (via the 'add...' methods) or asynchronously via a queue. This allows

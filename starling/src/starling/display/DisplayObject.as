@@ -26,7 +26,7 @@ package starling.display
     import starling.filters.FragmentFilter;
     import starling.utils.MatrixUtil;
 	
-	import apparat.math.FastMath;
+	import starling.utils.FastMath;
     
     /** Dispatched when an object is added to a parent. */
     [Event(name="added", type="starling.events.Event")]

@@ -18,9 +18,8 @@ package starling.filters
     import flash.display3D.Program3D;
     
     import starling.textures.Texture;
-	
-	import apparat.math.FastMath;
-    
+	import starling.utils.FastMath;
+   
     /** The ColorMatrixFilter class lets you apply a 4x5 matrix transformation on the RGBA color 
      *  and alpha values of every pixel in the input image to produce a result with a new set 
      *  of RGBA color and alpha values. It allows saturation changes, hue rotation, 
