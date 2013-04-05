@@ -238,6 +238,22 @@ package starling.filters
             );
         }
         
+		/** Using this shortcut function to set mShaderMatrix directly using values extracted from SWF's ColorTransform format
+		  * note: does not updates mUserMatrix so it should not be used if you want to modify filter properties manually using other functions */
+		public function setShaderColorMatrix(
+			multR:Number, multG:Number, multB:Number, multA:Number,
+			addR:Number, addG:Number, addB:Number, addA:Number):void
+		{
+			mShaderMatrix.length = 0;
+            mShaderMatrix.push(
+                multR, 0, 0, 0,
+                0, multG, 0, 0,
+                0, 0, multB, 0, 
+                0, 0, 0, multA,
+                addR,  addG,  addB, addA
+            );
+		}
+		
         // properties
         
         /** A vector of 20 items arranged as a 4x5 matrix. */
