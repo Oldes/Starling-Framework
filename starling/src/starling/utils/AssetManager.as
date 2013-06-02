@@ -449,7 +449,7 @@ package starling.utils
             else if (rawAsset is String)
             {
                 var url:String = rawAsset as String;
-                extension = url.split(".").pop().toLowerCase();
+                extension = url.split(".").pop().toLowerCase().split("?")[0];
                 
                 var urlLoader:URLLoader = new URLLoader();
                 urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
