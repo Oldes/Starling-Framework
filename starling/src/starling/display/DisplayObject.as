@@ -161,10 +161,11 @@ package starling.display
             removeEventListeners();
         }
         
-        /** Removes the object from its parent, if it has one. */
+        /** Removes the object from its parent, if it has one, and optionally disposes it. */
         public function removeFromParent(dispose:Boolean=false):void
         {
             if (mParent) mParent.removeChild(this, dispose);
+            else if (dispose) this.dispose();
         }
         
         /** Creates a matrix that represents the transformation from the local coordinate system 
@@ -415,10 +416,10 @@ package starling.display
         {
             mOrientationChanged = false;
             mTransformationMatrix.copyFrom(matrix);
-
+            mPivotX = mPivotY = 0;
+            
             mX = matrix.tx;
             mY = matrix.ty;
-            
             mScaleX = Math.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
             mSkewY  = Math.acos(matrix.a / mScaleX);
             
