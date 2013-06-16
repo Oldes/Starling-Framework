@@ -220,12 +220,12 @@ package starling.display
                         if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
                         else           child.dispatchEventWith(Event.REMOVED_FROM_STAGE);
                     }
+					index = mChildren.indexOf(child); // index might have changed by event handler
+					if (index >= 0) mChildren.splice(index, 1); 
+                } else {
+					mChildren.splice(index, 1); 
                 }
-                 
-                
                 child.setParent(null);
-                index = mChildren.indexOf(child); // index might have changed by event handler
-                if (index >= 0) mChildren.splice(index, 1); 
                 if (dispose) child.dispose();
                 
                 return child;
