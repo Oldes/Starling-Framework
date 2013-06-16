@@ -169,9 +169,9 @@ package starling.utils
             log("Adding texture '" + name + "'");
             
             if (name in mTextures)
-                throw new Error("Duplicate texture name: " + name);
-            else
-                mTextures[name] = texture;
+                log("Warning: name was already in use; the previous texture will be replaced.");
+            
+            mTextures[name] = texture;
         }
         
         /** Register a texture atlas under a certain name. It will be available right away. */
@@ -180,9 +180,9 @@ package starling.utils
             log("Adding texture atlas '" + name + "'");
             
             if (name in mAtlases)
-                throw new Error("Duplicate texture atlas name: " + name);
-            else
-                mAtlases[name] = atlas;
+                log("Warning: name was already in use; the previous atlas will be replaced.");
+            
+            mAtlases[name] = atlas;
         }
         
         /** Register a sound under a certain name. It will be available right away. */
@@ -191,9 +191,9 @@ package starling.utils
             log("Adding sound '" + name + "'");
             
             if (name in mSounds)
-                throw new Error("Duplicate sound name: " + name);
-            else
-                mSounds[name] = sound;
+                log("Warning: name was already in use; the previous sound will be replaced.");
+
+            mSounds[name] = sound;
         }
         
         // removing
