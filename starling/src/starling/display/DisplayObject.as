@@ -134,6 +134,8 @@ package starling.display
         private var mTransformationMatrix:Matrix;
         private var mOrientationChanged:Boolean;
         private var mFilter:FragmentFilter;
+		
+		public var numId:uint;
         
         /** Helper objects. */
         private static var sAncestors:Vector.<DisplayObject> = new <DisplayObject>[];
