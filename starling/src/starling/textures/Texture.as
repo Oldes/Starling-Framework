@@ -17,8 +17,6 @@ package starling.textures
     import flash.display3D.Context3DTextureFormat;
     import flash.display3D.textures.TextureBase;
     import flash.events.Event;
-    import flash.geom.Matrix;
-    import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.system.Capabilities;
     import flash.utils.ByteArray;
@@ -27,6 +25,7 @@ package starling.textures
     import starling.core.Starling;
     import starling.errors.AbstractClassError;
     import starling.errors.MissingContextError;
+    import starling.utils.Color;
     import starling.utils.VertexData;
     import starling.utils.getNextPowerOfTwo;
 
@@ -88,9 +87,6 @@ package starling.textures
         private var mFrame:Rectangle;
         private var mRepeat:Boolean;
         
-        /** helper object */
-        private static var sOrigin:Point = new Point();
-        
         /** @private */
         public function Texture()
         {
@@ -112,6 +108,46 @@ package starling.textures
             // override in subclasses
         }
         
+        /** Creates a texture object from an embedded asset class. Textures created with this
+         *  method will be restored directly from the asset class in case of a context loss,
+         *  which guarantees a very economic memory usage.  
+         * 
+         *  @param assetClass  must contain either a Bitmap or a ByteArray with ATF data.
+         *  @param mipMaps     for Bitmaps, indicates if mipMaps will be created;
+         *                     for ATF data, indicates if the contained mipMaps will be used.
+         *  @param scale       the scale factor of the created texture. 
+         */
+        public static function fromEmbeddedAsset(assetClass:Class, mipMaps:Boolean=true,
+                                                 scale:Number=1):Texture
+        {
+            var texture:Texture;
+            var asset:Object = new assetClass();
+            
+            if (asset is Bitmap)
+            {
+                texture = Texture.fromBitmap(asset as Bitmap, mipMaps, false, scale);
+                texture.root.onRestore = function():void
+                {
+                    texture.root.uploadBitmap(new assetClass());
+                };
+            }
+            else if (asset is ByteArray)
+            {
+                texture = Texture.fromAtfData(asset as ByteArray, scale, mipMaps);
+                texture.root.onRestore = function():void
+                {
+                    texture.root.uploadAtfData(new assetClass()); 
+                };
+            }
+            else
+            {
+                throw new ArgumentError("Invalid asset type: " + getQualifiedClassName(asset));
+            }
+            
+            asset = null; // avoid that object stays in memory (through 'onRestore' functions)
+            return texture;
+        }
+        
         /** Creates a texture object from a bitmap.
          *  Beware: you must not dispose 'data' if Starling should handle a lost device context. */
         public static function fromBitmap(data:Bitmap, generateMipMaps:Boolean=true,
@@ -127,12 +163,12 @@ package starling.textures
                                               optimizeForRenderToTexture:Boolean=false,
                                               scale:Number=1):Texture
         {
-            var potData:BitmapData;
             var nativeTexture:flash.display3D.textures.TextureBase;
             var context:Context3D = Starling.context;
             
             if (context == null) throw new MissingContextError();
             
+            var width:int, height:int;
             var origWidth:int  = data.width;
             var origHeight:int = data.height;
             var potWidth:int   = getNextPowerOfTwo(origWidth);
@@ -144,35 +180,33 @@ package starling.textures
             
             if (useRectTexture)
             {
+                width  = origWidth;
+                height = origHeight;
+                
                 // Rectangle Textures are supported beginning with AIR 3.8. By calling the new
                 // methods only through those lookups, we stay compatible with older SDKs.
-                
-                nativeTexture = context["createRectangleTexture"](origWidth, origHeight, 
+                nativeTexture = context["createRectangleTexture"](width, height, 
                     Context3DTextureFormat.BGRA, optimizeForRenderToTexture);
             }
             else
             {
-                nativeTexture = context.createTexture(potWidth, potHeight, 
+                width  = potWidth;
+                height = potHeight;
+                nativeTexture = context.createTexture(width, height, 
                     Context3DTextureFormat.BGRA, optimizeForRenderToTexture);
-            
-                if (potWidth > origWidth || potHeight > origHeight)
-                {
-                    potData = new BitmapData(potWidth, potHeight, true, 0);
-                    potData.copyPixels(data, data.rect, sOrigin);
-                    data = potData;
-                }
             }
             
-            uploadBitmapData(nativeTexture, data, generateMipMaps);
-            
             var concreteTexture:ConcreteTexture = new ConcreteTexture(
-                nativeTexture, Context3DTextureFormat.BGRA, data.width, data.height,
+                nativeTexture, Context3DTextureFormat.BGRA, width, height,
                 generateMipMaps, true, optimizeForRenderToTexture, scale);
             
+            concreteTexture.uploadBitmapData(data);
+            
             if (Starling.handleLostContext)
-                concreteTexture.restoreOnLostContext(data);
-            else if (potData)
-                potData.dispose();
+                concreteTexture.onRestore = function():void
+                {
+                    concreteTexture.uploadBitmapData(data);
+                };
             
             if (isPot || useRectTexture)
                 return concreteTexture;
@@ -201,16 +235,18 @@ package starling.textures
             var async:Boolean = loadAsync != null;
             var atfData:AtfData = new AtfData(data);
             var nativeTexture:flash.display3D.textures.Texture = context.createTexture(
-                    atfData.width, atfData.height, atfData.format, false);
-            
-            uploadAtfData(nativeTexture, data, 0, async);
-            
+                atfData.width, atfData.height, atfData.format, false);
             var concreteTexture:ConcreteTexture = new ConcreteTexture(nativeTexture, atfData.format, 
                 atfData.width, atfData.height, useMipMaps && atfData.numTextures > 1, 
                 false, false, scale);
             
+            concreteTexture.uploadAtfData(data, 0, async);
+            
             if (Starling.handleLostContext) 
-                concreteTexture.restoreOnLostContext(atfData);
+                concreteTexture.onRestore = function():void
+                {
+                    concreteTexture.uploadAtfData(data, 0, async);
+                };
             
             if (async)
                 nativeTexture.addEventListener(eventType, onTextureReady);
@@ -237,13 +273,13 @@ package starling.textures
                                          optimizeForRenderToTexture:Boolean=false, 
                                          scale:Number=-1):Texture
         {
-            if (scale <= 0) scale = Starling.contentScaleFactor;
+            var texture:Texture = Texture.empty(width, height, true, optimizeForRenderToTexture, scale);
+            texture.root.clear(color, Color.getAlpha(color) / 255.0);
             
-            var bitmapData:BitmapData = new BitmapData(width*scale, height*scale, true, color);
-            var texture:Texture = fromBitmapData(bitmapData, false, optimizeForRenderToTexture, scale);
-            
-            if (!Starling.handleLostContext)
-                bitmapData.dispose();
+            texture.root.onRestore = function():void
+            {
+                texture.root.clear(color, Color.getAlpha(color) / 255.0);
+            };
             
             return texture;
         }
@@ -279,6 +315,9 @@ package starling.textures
             var concreteTexture:ConcreteTexture = new ConcreteTexture(nativeTexture, format,
                 legalWidth, legalHeight, false, premultipliedAlpha, optimizeForRenderToTexture, scale);
             
+            if (Starling.handleLostContext)
+                concreteTexture.onRestore = concreteTexture.clear;
+            
             if (origWidth == legalWidth && origHeight == legalHeight)
                 return concreteTexture;
             else
@@ -311,57 +350,6 @@ package starling.textures
                 vertexData.translateVertex(vertexID + 2, -mFrame.x, -deltaBottom);
                 vertexData.translateVertex(vertexID + 3, -deltaRight, -deltaBottom);
             }
-        }
-        
-        /** @private Uploads the bitmap data to the native texture, optionally creating mipmaps. */
-        internal static function uploadBitmapData(nativeTexture:TextureBase,
-                                                  data:BitmapData, generateMipmaps:Boolean):void
-        {
-            if (nativeTexture is flash.display3D.textures.Texture)
-            {
-                var potTexture:flash.display3D.textures.Texture = 
-                    nativeTexture as flash.display3D.textures.Texture;
-                
-                potTexture.uploadFromBitmapData(data);
-                
-                if (generateMipmaps && data.width > 1 && data.height > 1)
-                {
-                    var currentWidth:int  = data.width  >> 1;
-                    var currentHeight:int = data.height >> 1;
-                    var level:int = 1;
-                    var canvas:BitmapData = new BitmapData(currentWidth, currentHeight, true, 0);
-                    var transform:Matrix = new Matrix(.5, 0, 0, .5);
-                    var bounds:Rectangle = new Rectangle();
-                    
-                    while (currentWidth >= 1 || currentHeight >= 1)
-                    {
-                        bounds.width = currentWidth; bounds.height = currentHeight;
-                        canvas.fillRect(bounds, 0);
-                        canvas.draw(data, transform, null, null, null, true);
-                        potTexture.uploadFromBitmapData(canvas, level++);
-                        transform.scale(0.5, 0.5);
-                        currentWidth  = currentWidth  >> 1;
-                        currentHeight = currentHeight >> 1;
-                    }
-                    
-                    canvas.dispose();
-                }
-            }
-            else // if (nativeTexture is RectangleTexture)
-            {
-                nativeTexture["uploadFromBitmapData"](data);
-            }
-        }
-        
-        /** @private Uploads ATF data from a ByteArray to a native texture. */
-        internal static function uploadAtfData(nativeTexture:flash.display3D.textures.TextureBase, 
-                                               data:ByteArray, offset:int=0, 
-                                               async:Boolean=false):void
-        {
-            var potTexture:flash.display3D.textures.Texture = 
-                    nativeTexture as flash.display3D.textures.Texture;
-            
-            potTexture.uploadCompressedTextureFromByteArray(data, offset, async);
         }
         
         // properties
