@@ -51,10 +51,7 @@ package starling.core
         
         private var mDrawCount:int;
         private var mBlendMode:String;
-
         private var mRenderTarget:Texture;
-        private var mBackBufferWidth:int;
-        private var mBackBufferHeight:int;
         
         private var mClipRectStack:Vector.<Rectangle>;
         private var mClipRectStackSize:int;
@@ -231,39 +228,6 @@ package starling.core
             else        Starling.context.setRenderToBackBuffer();
         }
         
-        /** Configures the back buffer on the current context3D. By using this method, Starling
-         *  can store the size of the back buffer and utilize this information in other methods
-         *  (e.g. the 'clipRect' property). Back buffer width and height can later be accessed
-         *  using the properties with the same name. */
-        public function configureBackBuffer(width:int, height:int, antiAlias:int, 
-                                            enableDepthAndStencil:Boolean,
-                                            wantsBestResolution:Boolean=false):void
-        {
-            mBackBufferWidth  = width;
-            mBackBufferHeight = height;
-            
-            var configureBackBuffer:Function = Starling.context.configureBackBuffer;
-            var methodArgs:Array = [width, height, antiAlias, enableDepthAndStencil];
-            if (configureBackBuffer.length > 4) methodArgs.push(wantsBestResolution);
-            configureBackBuffer.apply(Starling.context, methodArgs);
-        }
-        
-        /** The width of the back buffer, as it was configured in the last call to 
-         *  'RenderSupport.configureBackBuffer()'. Beware: changing this value does not actually
-         *  resize the back buffer; the setter should only be used to inform Starling about the
-         *  size of a back buffer it can't control (shared context situations).
-         */
-        public function get backBufferWidth():int { return mBackBufferWidth; }
-        public function set backBufferWidth(value:int):void { mBackBufferWidth = value; }
-        
-        /** The height of the back buffer, as it was configured in the last call to 
-         *  'RenderSupport.configureBackBuffer()'. Beware: changing this value does not actually
-         *  resize the back buffer; the setter should only be used to inform Starling about the
-         *  size of a back buffer it can't control (shared context situations).
-         */
-        public function get backBufferHeight():int { return mBackBufferHeight; }
-        public function set backBufferHeight(value:int):void { mBackBufferHeight = value; }
-        
         // clipping
         
         /** The clipping rectangle can be used to limit rendering in the current render target to
@@ -313,11 +277,20 @@ package starling.core
             
             if (mClipRectStackSize > 0)
             {
+                var width:int, height:int;
                 var rect:Rectangle = mClipRectStack[mClipRectStackSize-1];
                 sRectangle.setTo(rect.x, rect.y, rect.width, rect.height);
                 
-                var width:int  = mRenderTarget ? mRenderTarget.root.nativeWidth  : mBackBufferWidth;
-                var height:int = mRenderTarget ? mRenderTarget.root.nativeHeight : mBackBufferHeight;
+                if (mRenderTarget)
+                {
+                    width  = mRenderTarget.root.nativeWidth;
+                    height = mRenderTarget.root.nativeHeight;
+                }
+                else
+                {
+                    width  = Starling.current.backBufferWidth;
+                    height = Starling.current.backBufferHeight;
+                }
                 
                 // convert to pixel coordinates
                 MatrixUtil.transformCoords(mProjectionMatrix, rect.x, rect.y, sPoint);
@@ -356,6 +329,24 @@ package starling.core
             
             mQuadBatches[mCurrentQuadBatchID].addQuad(quad, parentAlpha, texture, smoothing, 
                                                       mModelViewMatrix, mBlendMode);
+        }
+        
+        /** Adds a batch of quads to the current batch of unrendered quads. If there is a state 
+         *  change, all previous quads are rendered at once. 
+         *  
+         *  <p>Note that you should call this method only for objects with a small number of quads 
+         *  (we recommend no more than 16). Otherwise, the additional CPU effort will be more
+         *  expensive than what you save by avoiding the draw call.</p> */
+        public function batchQuadBatch(quadBatch:QuadBatch, parentAlpha:Number):void
+        {
+            if (mQuadBatches[mCurrentQuadBatchID].isStateChange(
+                quadBatch.tinted, parentAlpha, quadBatch.texture, quadBatch.smoothing, mBlendMode))
+            {
+                finishQuadBatch();
+            }
+            
+            mQuadBatches[mCurrentQuadBatchID].addQuadBatch(quadBatch, parentAlpha, 
+                                                           mModelViewMatrix, mBlendMode);
         }
         
         /** Renders the current quad batch and resets it. */
@@ -461,6 +452,5 @@ package starling.core
         
         /** Indicates the number of stage3D draw calls. */
         public function get drawCount():int { return mDrawCount; }
-        
     }
 }
