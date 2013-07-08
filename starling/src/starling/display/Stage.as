@@ -63,7 +63,8 @@ package starling.display
         private var mWidth:int;
         private var mHeight:int;
         private var mColor:uint;
-        private var mEnterFrameEvent:EnterFrameEvent = new EnterFrameEvent(Event.ENTER_FRAME, 0.0);
+        private var mEnterFrameEvent:EnterFrameEvent;
+        private var mEnterFrameListeners:Vector.<DisplayObject>;
         
         /** @private */
         public function Stage(width:int, height:int, color:uint=0)
@@ -71,6 +72,8 @@ package starling.display
             mWidth = width;
             mHeight = height;
             mColor = color;
+            mEnterFrameEvent = new EnterFrameEvent(Event.ENTER_FRAME, 0.0);
+            mEnterFrameListeners = new <DisplayObject>[];
         }
         
         /** @inheritDoc */
@@ -121,6 +124,36 @@ package starling.display
             
             return destination;
         }
+        
+        // enter frame event optimization
+        
+        /** @private */
+        internal function addEnterFrameListener(listener:DisplayObject):void
+        {
+            mEnterFrameListeners.push(listener);
+        }
+        
+        /** @private */
+        internal function removeEnterFrameListener(listener:DisplayObject):void
+        {
+            var index:int = mEnterFrameListeners.indexOf(listener);
+            if (index >= 0) mEnterFrameListeners.splice(index, 1); 
+        }
+        
+        /** @private */
+        internal override function getChildEventListeners(object:DisplayObject, eventType:String, 
+                                                          listeners:Vector.<DisplayObject>):void
+        {
+            if (eventType == Event.ENTER_FRAME && object == this)
+            {
+                for (var i:int=0, length:int=mEnterFrameListeners.length; i<length; ++i)
+                    listeners.push(mEnterFrameListeners[i]); 
+            }
+            else
+                super.getChildEventListeners(object, eventType, listeners);
+        }
+        
+        // properties
         
         /** @private */
         public override function set width(value:Number):void 

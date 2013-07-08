@@ -471,7 +471,9 @@ package starling.utils
         private function processRawAsset(name:String, rawAsset:Object, xmls:Vector.<XML>,
                                          onProgress:Function, onComplete:Function):void
         {
-            loadRawAsset(name, rawAsset, onProgress, function process(asset:Object):void
+            loadRawAsset(name, rawAsset, onProgress, process); 
+            
+            function process(asset:Object):void
             {
                 var texture:Texture;
                 var bytes:ByteArray;
@@ -552,7 +554,7 @@ package starling.utils
                 // avoid that objects stay in memory (through 'onRestore' functions)
                 asset = null;
                 bytes = null;
-            });
+            }
         }
         
         private function loadRawAsset(name:String, rawAsset:Object, 
