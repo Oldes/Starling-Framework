@@ -29,8 +29,6 @@ package starling.core
     import starling.utils.Color;
     import starling.utils.MatrixUtil;
     import starling.utils.RectangleUtil;
-	
-	import starling.utils.FastMath;
 
     /** A class that contains helper methods simplifying Stage3D rendering.
      *
@@ -292,14 +290,14 @@ package starling.core
                     height = Starling.current.backBufferHeight;
                 }
                 
-                // convert to pixel coordinates
+                // convert to pixel coordinates (matrix transformation ends up in range [-1, 1])
                 MatrixUtil.transformCoords(mProjectionMatrix, rect.x, rect.y, sPoint);
-                sRectangle.x = FastMath.max(0, ( sPoint.x + 1) / 2) * width;
-                sRectangle.y = FastMath.max(0, (-sPoint.y + 1) / 2) * height;
+                sRectangle.x = sPoint.x > -1 ? (( sPoint.x + 1) / 2) * width  : 0.0;
+                sRectangle.y = sPoint.y > -1 ? ((-sPoint.y + 1) / 2) * height : 0.0;
                 
                 MatrixUtil.transformCoords(mProjectionMatrix, rect.right, rect.bottom, sPoint);
-                sRectangle.right  = FastMath.min(1, ( sPoint.x + 1) / 2) * width;
-                sRectangle.bottom = FastMath.min(1, (-sPoint.y + 1) / 2) * height;
+                sRectangle.right  = sPoint.x < 1 ? (( sPoint.x + 1) / 2) * width  : width;
+                sRectangle.bottom = sPoint.y < 1 ? ((-sPoint.y + 1) / 2) * height : height;
                 
                 // an empty rectangle is not allowed, so we set it to the smallest possible size
                 // if the bounds are outside the visible area.

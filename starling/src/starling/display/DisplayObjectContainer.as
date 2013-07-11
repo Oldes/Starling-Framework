@@ -501,7 +501,7 @@ package starling.display
             var container:DisplayObjectContainer = object as DisplayObjectContainer;
             
             if (object.hasEventListener(eventType))
-                listeners.push(object);
+                listeners[listeners.length] = object; // avoiding 'push'                
             
             if (container)
             {
