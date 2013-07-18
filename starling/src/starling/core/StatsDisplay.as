@@ -73,7 +73,7 @@ package starling.core
             mTotalTime += event.passedTime;
             mFrameCount++;
             
-            if (mTotalTime > 1.0)
+            if (mTotalTime > 2.0)
             {
                 update();
                 mFrameCount = mTotalTime = 0;
@@ -84,10 +84,10 @@ package starling.core
         public function update():void
         {
             mFps = mTotalTime > 0 ? mFrameCount / mTotalTime : 0;
-            mMemory = System.totalMemory * 0.000000954; // 1.0 / (1024*1024) to convert to MB
+            //mMemory = System.totalMemory * 0.000000954; // 1.0 / (1024*1024) to convert to MB
             
             mTextField.text = "FPS: " + mFps.toFixed(mFps < 100 ? 1 : 0) + 
-                            "\nMEM: " + mMemory.toFixed(mMemory < 100 ? 1 : 0) +
+                            //"\nMEM: " + mMemory.toFixed(mMemory < 100 ? 1 : 0) +
                             "\nDRW: " + FastMath.max(0, mDrawCount - 2); // ignore self 
         }
         
