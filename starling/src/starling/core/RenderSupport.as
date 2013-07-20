@@ -106,37 +106,37 @@ package starling.core
         }
         
         /** Changes the modelview matrix to the identity matrix. */
-        public function loadIdentity():void
+        [Inline] final public function loadIdentity():void
         {
             mModelViewMatrix.identity();
         }
         
         /** Prepends a translation to the modelview matrix. */
-        public function translateMatrix(dx:Number, dy:Number):void
+        [Inline] final public function translateMatrix(dx:Number, dy:Number):void
         {
             MatrixUtil.prependTranslation(mModelViewMatrix, dx, dy);
         }
         
         /** Prepends a rotation (angle in radians) to the modelview matrix. */
-        public function rotateMatrix(angle:Number):void
+        [Inline] final public function rotateMatrix(angle:Number):void
         {
             MatrixUtil.prependRotation(mModelViewMatrix, angle);
         }
         
         /** Prepends an incremental scale change to the modelview matrix. */
-        public function scaleMatrix(sx:Number, sy:Number):void
+        [Inline] final public function scaleMatrix(sx:Number, sy:Number):void
         {
             MatrixUtil.prependScale(mModelViewMatrix, sx, sy);
         }
         
         /** Prepends a matrix to the modelview matrix by multiplying it with another matrix. */
-        public function prependMatrix(matrix:Matrix):void
+        [Inline] final public function prependMatrix(matrix:Matrix):void
         {
             MatrixUtil.prependMatrix(mModelViewMatrix, matrix);
         }
         
         /** Prepends translation, scale and rotation of an object to the modelview matrix. */
-        public function transformMatrix(object:DisplayObject):void
+        [Inline] final public function transformMatrix(object:DisplayObject):void
         {
             MatrixUtil.prependMatrix(mModelViewMatrix, object.transformationMatrix);
         }
@@ -164,7 +164,7 @@ package starling.core
         }
         
         /** Prepends translation, scale and rotation of an object to a custom matrix. */
-        public static function transformMatrixForObject(matrix:Matrix, object:DisplayObject):void
+        [Inline] public static function transformMatrixForObject(matrix:Matrix, object:DisplayObject):void
         {
             MatrixUtil.prependMatrix(matrix, object.transformationMatrix);
         }
