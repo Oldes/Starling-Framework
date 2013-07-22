@@ -87,7 +87,7 @@ package starling.animation
         {
             mTarget = target;
             mCurrentTime = 0.0;
-            mTotalTime = Math.max(0.0001, time);
+            mTotalTime = (time <= 0.0) ? 0.0001 : time;
             mProgress = 0.0;
             mDelay = mRepeatDelay = 0.0;
             mOnStart = mOnUpdate = mOnComplete = null;
