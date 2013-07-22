@@ -16,6 +16,7 @@ package starling.filters
     
     import starling.textures.Texture;
     import starling.utils.Color;
+	import starling.utils.FastMath;
 
     /** The BlurFilter applies a Gaussian blur to an object. The strength of the blur can be
      *  set for x- and y-axis separately (always relative to the stage).
@@ -68,8 +69,8 @@ package starling.filters
                                                 resolution:Number=0.5):BlurFilter
         {
             var dropShadow:BlurFilter = new BlurFilter(blur, blur, resolution);
-            dropShadow.offsetX = Math.cos(angle) * distance;
-            dropShadow.offsetY = Math.sin(angle) * distance;
+            dropShadow.offsetX = FastMath.cos(angle) * distance;
+            dropShadow.offsetY = FastMath.sin(angle) * distance;
             dropShadow.mode = FragmentFilterMode.BELOW;
             dropShadow.setUniformColor(true, color, alpha);
             return dropShadow;
@@ -194,17 +195,17 @@ package starling.filters
             
             if (horizontal)
             {
-                sigma = Math.min(1.0, mBlurX - pass) * MAX_SIGMA;
+                sigma = FastMath.min(1.0, mBlurX - pass) * MAX_SIGMA;
                 pixelSize = 1.0 / textureWidth; 
             }
             else
             {
-                sigma = Math.min(1.0, mBlurY - (pass - Math.ceil(mBlurX))) * MAX_SIGMA;
+                sigma = FastMath.min(1.0, mBlurY - (pass - Math.ceil(mBlurX))) * MAX_SIGMA;
                 pixelSize = 1.0 / textureHeight;
             }
             
             const twoSigmaSq:Number = 2 * sigma * sigma; 
-            const multiplier:Number = 1.0 / Math.sqrt(twoSigmaSq * Math.PI);
+            const multiplier:Number = 1.0 / FastMath.sqrt(twoSigmaSq * Math.PI);
             
             // get weights on the exact pixels (sTmpWeights) and calculate sums (mWeights)
             
@@ -252,8 +253,8 @@ package starling.filters
             if (mBlurX == 0 && mBlurY == 0) mBlurX = 0.001;
             
             numPasses = Math.ceil(mBlurX) + Math.ceil(mBlurY);
-            marginX = 4 + Math.ceil(mBlurX);
-            marginY = 4 + Math.ceil(mBlurY); 
+            marginX = (3 + Math.ceil(mBlurX)) / resolution;
+            marginY = (3 + Math.ceil(mBlurY)) / resolution;
         }
         
         /** A uniform color will replace the RGB values of the input color, while the alpha

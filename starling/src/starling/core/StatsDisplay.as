@@ -21,11 +21,15 @@ package starling.core
     import starling.text.TextField;
     import starling.utils.HAlign;
     import starling.utils.VAlign;
+	
+	import starling.utils.FastMath;
     
     /** A small, lightweight box that displays the current framerate, memory consumption and
      *  the number of draw calls per frame. The display is updated automatically once per frame. */
     internal class StatsDisplay extends Sprite
     {
+        private const UPDATE_INTERVAL:Number = 2.0;
+        
         private var mBackground:Quad;
         private var mTextField:TextField;
         
@@ -71,7 +75,7 @@ package starling.core
             mTotalTime += event.passedTime;
             mFrameCount++;
             
-            if (mTotalTime > 1.0)
+            if (mTotalTime > UPDATE_INTERVAL)
             {
                 update();
                 mFrameCount = mTotalTime = 0;
@@ -82,18 +86,28 @@ package starling.core
         public function update():void
         {
             mFps = mTotalTime > 0 ? mFrameCount / mTotalTime : 0;
-            mMemory = System.totalMemory * 0.000000954; // 1.0 / (1024*1024) to convert to MB
+            //mMemory = System.totalMemory * 0.000000954; // 1.0 / (1024*1024) to convert to MB
             
             mTextField.text = "FPS: " + mFps.toFixed(mFps < 100 ? 1 : 0) + 
-                            "\nMEM: " + mMemory.toFixed(mMemory < 100 ? 1 : 0) +
-                            "\nDRW: " + Math.max(0, mDrawCount - 2); // ignore self 
+                            //"\nMEM: " + mMemory.toFixed(mMemory < 100 ? 1 : 0) +
+                            "\nDRW: " + (mTotalTime > 0 ? mDrawCount-2 : mDrawCount); // ignore self 
+        }
+        
+        public override function render(support:RenderSupport, parentAlpha:Number):void
+        {
+            // The display should always be rendered with two draw calls, so that we can
+            // always reduce the draw count by that number to get the number produced by the 
+            // actual content.
+            
+            support.finishQuadBatch();
+            super.render(support, parentAlpha);
         }
         
         /** The number of Stage3D draw calls per second. */
         public function get drawCount():int { return mDrawCount; }
         public function set drawCount(value:int):void { mDrawCount = value; }
         
-        /** The current frames per second (updated once per second). */
+        /** The current frames per second (updated twice per second). */
         public function get fps():Number { return mFps; }
         public function set fps(value:Number):void { mFps = value; }
         

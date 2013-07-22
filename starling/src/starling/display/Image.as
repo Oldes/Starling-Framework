@@ -46,7 +46,6 @@ package starling.display
         /** Creates a quad with a texture mapped onto it. */
         public function Image(texture:Texture)
         {
-            //touchable = false; //OLDES: Just for my purposes! In most cases I don't require Image to catch events.
             if (texture)
             {
                 var frame:Rectangle = texture.frame;
@@ -111,6 +110,13 @@ package starling.display
         public function setTexCoords(vertexID:int, coords:Point):void
         {
             mVertexData.setTexCoords(vertexID, coords.x, coords.y);
+            onVertexDataChanged();
+        }
+        
+        /** Sets the texture coordinates of a vertex. Coordinates are in the range [0, 1]. */
+        public function setTexCoordsTo(vertexID:int, u:Number, v:Number):void
+        {
+            mVertexData.setTexCoords(vertexID, u, v);
             onVertexDataChanged();
         }
         

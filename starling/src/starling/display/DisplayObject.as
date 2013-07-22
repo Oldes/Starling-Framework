@@ -19,12 +19,18 @@ package starling.display
     import flash.utils.getQualifiedClassName;
     
     import starling.core.RenderSupport;
+    import starling.core.Starling;
     import starling.errors.AbstractClassError;
     import starling.errors.AbstractMethodError;
+    import starling.events.Event;
     import starling.events.EventDispatcher;
     import starling.events.TouchEvent;
     import starling.filters.FragmentFilter;
+    import starling.utils.HAlign;
     import starling.utils.MatrixUtil;
+    import starling.utils.VAlign;
+
+	import starling.utils.FastMath;
     
     /** Dispatched when an object is added to a parent. */
     [Event(name="added", type="starling.events.Event")]
@@ -130,6 +136,8 @@ package starling.display
         private var mTransformationMatrix:Matrix;
         private var mOrientationChanged:Boolean;
         private var mFilter:FragmentFilter;
+		
+		public var numId:uint;
         
         /** Helper objects. */
         private static var sAncestors:Vector.<DisplayObject> = new <DisplayObject>[];
@@ -218,7 +226,7 @@ package starling.display
             
             while (currentObject)
             {
-                sAncestors.push(currentObject);
+                sAncestors[sAncestors.length] = currentObject; // avoiding 'push'
                 currentObject = currentObject.mParent;
             }
             
@@ -266,7 +274,7 @@ package starling.display
          *  rectangle instead of creating a new object. */ 
         public function getBounds(targetSpace:DisplayObject, resultRect:Rectangle=null):Rectangle
         {
-            throw new AbstractMethodError("Method needs to be implemented in subclass");
+            throw new AbstractMethodError();
             return null;
         }
         
@@ -308,7 +316,7 @@ package starling.display
          *  @param parentAlpha The accumulated alpha value from the object's parent up to the stage. */
         public function render(support:RenderSupport, parentAlpha:Number):void
         {
-            throw new AbstractMethodError("Method needs to be implemented in subclass");
+            throw new AbstractMethodError();
         }
         
         /** Indicates if an object occupies any visible area. (Which is the case when its 'alpha', 
@@ -316,6 +324,24 @@ package starling.display
         public function get hasVisibleArea():Boolean
         {
             return mAlpha != 0.0 && mVisible && mScaleX != 0.0 && mScaleY != 0.0;
+        }
+        
+        /** Moves the pivot point to a certain position within the local coordinate system
+         *  of the object. If you pass no arguments, it will be centered. */ 
+        public function alignPivot(hAlign:String="center", vAlign:String="center"):void
+        {
+            var bounds:Rectangle = getBounds(this);
+            mOrientationChanged = true;
+            
+            if (hAlign == HAlign.LEFT)        mPivotX = bounds.x;
+            else if (hAlign == HAlign.CENTER) mPivotX = bounds.x + bounds.width / 2.0;
+            else if (hAlign == HAlign.RIGHT)  mPivotX = bounds.x + bounds.width; 
+            else throw new ArgumentError("Invalid horizontal alignment: " + hAlign);
+            
+            if (vAlign == VAlign.TOP)         mPivotY = bounds.y;
+            else if (vAlign == VAlign.CENTER) mPivotY = bounds.y + bounds.height / 2.0;
+            else if (vAlign == VAlign.BOTTOM) mPivotY = bounds.y + bounds.height;
+            else throw new ArgumentError("Invalid vertical alignment: " + vAlign);
         }
         
         // internal methods
@@ -350,6 +376,60 @@ package starling.display
             return angle;
         }
         
+        // enter frame event optimization
+        
+        // To avoid looping through the complete display tree each frame to find out who's
+        // listening to ENTER_FRAME events, we manage a list of them manually in the Stage class.
+        // We need to take care that (a) it must be dispatched only when the object is
+        // part of the stage, (b) it must not cause memory leaks when the user forgets to call
+        // dispose and (c) there might be multiple listeners for this event.
+        
+        public override function addEventListener(type:String, listener:Function):void
+        {
+            if (type == Event.ENTER_FRAME && !hasEventListener(type))
+            {
+                addEventListener(Event.ADDED_TO_STAGE, addEnterFrameListenerToStage);
+                addEventListener(Event.REMOVED_FROM_STAGE, removeEnterFrameListenerFromStage);
+                if (this.stage) addEnterFrameListenerToStage();
+            }
+            
+            super.addEventListener(type, listener);
+        }
+        
+        public override function removeEventListener(type:String, listener:Function):void
+        {
+            super.removeEventListener(type, listener);
+            
+            if (type == Event.ENTER_FRAME && !hasEventListener(type))
+            {
+                removeEventListener(Event.ADDED_TO_STAGE, addEnterFrameListenerToStage);
+                removeEventListener(Event.REMOVED_FROM_STAGE, removeEnterFrameListenerFromStage);
+                removeEnterFrameListenerFromStage();
+            }
+        }
+        
+        public override function removeEventListeners(type:String=null):void
+        {
+            super.removeEventListeners(type);
+            
+            if (type == null || type == Event.ENTER_FRAME)
+            {
+                removeEventListener(Event.ADDED_TO_STAGE, addEnterFrameListenerToStage);
+                removeEventListener(Event.REMOVED_FROM_STAGE, removeEnterFrameListenerFromStage);
+                removeEnterFrameListenerFromStage();
+            }
+        }
+        
+        private function addEnterFrameListenerToStage():void
+        {
+            Starling.current.stage.addEnterFrameListener(this);
+        }
+        
+        private function removeEnterFrameListenerFromStage():void
+        {
+            Starling.current.stage.removeEnterFrameListener(this);
+        }
+        
         // properties
  
         /** The transformation matrix of the object relative to its parent.
@@ -378,8 +458,8 @@ package starling.display
                     }
                     else
                     {
-                        var cos:Number = Math.cos(mRotation);
-                        var sin:Number = Math.sin(mRotation);
+                        var cos:Number = FastMath.cos(mRotation);
+                        var sin:Number = FastMath.sin(mRotation);
                         var a:Number   = mScaleX *  cos;
                         var b:Number   = mScaleX *  sin;
                         var c:Number   = mScaleY * -sin;
@@ -420,19 +500,19 @@ package starling.display
             
             mX = matrix.tx;
             mY = matrix.ty;
-            mScaleX = Math.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
+			mScaleX = FastMath.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
             mSkewY  = Math.acos(matrix.a / mScaleX);
             
-            if (!isEquivalent(matrix.b, mScaleX * Math.sin(mSkewY)))
+            if (!isEquivalent(matrix.b, mScaleX * FastMath.sin(mSkewY)))
             {
                 mScaleX *= -1;
                 mSkewY = Math.acos(matrix.a / mScaleX);
             }
             
-            mScaleY = Math.sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
+            mScaleY = FastMath.sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
             mSkewX  = Math.acos(matrix.d / mScaleY);
             
-            if (!isEquivalent(matrix.c, -mScaleY * Math.sin(mSkewX)))
+            if (!isEquivalent(matrix.c, -mScaleY * FastMath.sin(mSkewX)))
             {
                 mScaleY *= -1;
                 mSkewX = Math.acos(matrix.d / mScaleY);
