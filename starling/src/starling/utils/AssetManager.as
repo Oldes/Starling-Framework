@@ -558,7 +558,9 @@ package starling.utils
                     {
                         loadRawAsset(name, rawAsset, null, function(asset:Object):void
                         {
-                            texture.root.uploadBitmap(asset as Bitmap);
+                            try { texture.root.uploadBitmap(asset as Bitmap); }
+                            catch (e:Error) { log("Texture restoration failed: " + e.message); }
+                            
                             asset.bitmapData.dispose();
                         });
                     };
@@ -578,7 +580,9 @@ package starling.utils
                         {
                             loadRawAsset(name, rawAsset, null, function(asset:Object):void
                             {
-                                texture.root.uploadAtfData(asset as ByteArray, 0, true);
+                                try { texture.root.uploadAtfData(asset as ByteArray, 0, true); }
+                                catch (e:Error) { log("Texture restoration failed: " + e.message); }
+                                
                                 asset.clear();
                             });
                         };
@@ -586,7 +590,7 @@ package starling.utils
                         bytes.clear();
                         addTexture(name, texture);
                     }
-                    else if (byteArrayStartsWith(bytes, "{"))
+                    else if (byteArrayStartsWith(bytes, "{") || byteArrayStartsWith(bytes, "["))
                     {
                         addObject(name, JSON.parse(bytes.readUTFBytes(bytes.length)));
                         bytes.clear();
