@@ -11,6 +11,7 @@
 package starling.core
 {
     import flash.geom.Point;
+	import flash.ui.Mouse;
     import flash.utils.getDefinitionByName;
     
     import starling.display.Stage;
@@ -26,8 +27,11 @@ package starling.core
      *  Flash stage to Starling's TouchEvents. */
     internal class TouchProcessor
     {
-        private static const MULTITAP_TIME:Number = 0.3;
-        private static const MULTITAP_DISTANCE:Number = 25;
+		CONFIG::multitap {
+			private static const MULTITAP_TIME:Number = 0.3;
+			private static const MULTITAP_DISTANCE:Number = 25;
+			private var mLastTaps:Vector.<Touch>;
+		}
         
         private var mStage:Stage;
         private var mElapsedTime:Number;
@@ -35,7 +39,6 @@ package starling.core
         
         private var mCurrentTouches:Vector.<Touch>;
         private var mQueue:Vector.<Array>;
-        private var mLastTaps:Vector.<Touch>;
         
         private var mShiftDown:Boolean = false;
         private var mCtrlDown:Boolean = false;
@@ -51,7 +54,9 @@ package starling.core
             mElapsedTime = 0.0;
             mCurrentTouches = new <Touch>[];
             mQueue = new <Array>[];
-            mLastTaps = new <Touch>[];
+            CONFIG::multitap {
+				mLastTaps = new <Touch>[];
+			}
             
             mStage.addEventListener(KeyboardEvent.KEY_DOWN, onKey);
             mStage.addEventListener(KeyboardEvent.KEY_UP,   onKey);
@@ -74,14 +79,16 @@ package starling.core
             
             mElapsedTime += passedTime;
             
-            // remove old taps
-            if (mLastTaps.length > 0)
-            {
-                for (i=mLastTaps.length-1; i>=0; --i)
-                    if (mElapsedTime - mLastTaps[i].timestamp > MULTITAP_TIME)
-                        mLastTaps.splice(i, 1);
+			CONFIG::multitap {
+				// remove old taps
+				if (mLastTaps.length > 0)
+				{
+					for (i=mLastTaps.length-1; i>=0; --i)
+						if (mElapsedTime - mLastTaps[i].timestamp > MULTITAP_TIME)
+							mLastTaps.splice(i, 1);
+				}
             }
-            
+			
             while (mQueue.length > 0)
             {
                 sProcessedTouchIDs.length = sHoveringTouchData.length = 0;
@@ -121,8 +128,17 @@ package starling.core
                 // if the target of a hovering touch changed, we dispatch the event to the previous
                 // target to notify it that it's no longer being hovered over.
                 for each (var touchData:Object in sHoveringTouchData)
-                    if (touchData.touch.target != touchData.target)
-                        touchEvent.dispatch(touchData.bubbleChain);
+                    if (touchData.touch.target != touchData.target) {
+						var newTarget:Object = touchData.touch.target;
+						var newCursor:String;
+						if (newTarget) {
+							newCursor = newTarget["cursor"] as String || "auto";
+							if(Mouse.cursor != newCursor) {
+								Mouse.cursor = newCursor;
+								}
+						}
+						touchEvent.dispatch(touchData.bubbleChain);
+					}
                 
                 // dispatch events
                 for each (touchID in sProcessedTouchIDs)
@@ -200,8 +216,10 @@ package starling.core
                 touch.setTarget(mStage.hitTest(sHelperPoint, true));
             }
             
-            if (phase == TouchPhase.BEGAN)
-                processTap(touch);
+			CONFIG::multitap {
+				if (phase == TouchPhase.BEGAN)
+					processTap(touch);
+			}
         }
         
         private function onKey(event:KeyboardEvent):void
@@ -241,6 +259,7 @@ package starling.core
             }
         }
         
+		CONFIG::multitap
         private function processTap(touch:Touch):void
         {
             var nearbyTap:Touch = null;

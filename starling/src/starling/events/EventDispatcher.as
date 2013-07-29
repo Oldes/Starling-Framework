@@ -37,6 +37,9 @@ package starling.events
      */
     public class EventDispatcher
     {
+		/** this property is used to define Mouse cursor, which may be different from classic ones **/
+		public var cursor:String;
+		
         private var mEventListeners:Dictionary;
         
         /** Helper object. */
