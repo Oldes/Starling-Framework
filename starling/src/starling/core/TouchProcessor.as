@@ -127,19 +127,17 @@ package starling.core
                 
                 // if the target of a hovering touch changed, we dispatch the event to the previous
                 // target to notify it that it's no longer being hovered over.
-                for each (var touchData:Object in sHoveringTouchData)
-                    if (touchData.touch.target != touchData.target) {
-						var newTarget:Object = touchData.touch.target;
-						var newCursor:String;
-						if (newTarget) {
-							newCursor = newTarget["cursor"] as String || "auto";
-							if(Mouse.cursor != newCursor) {
-								Mouse.cursor = newCursor;
-								}
+                for each (var touchData:Object in sHoveringTouchData) {
+					var newTarget:Object = touchData.touch.target;
+					if (newTarget) {
+						var newCursor:String = newTarget["cursor"] as String || "auto";
+						if(Mouse.cursor != newCursor) {
+							Mouse.cursor = newCursor;
 						}
-						touchEvent.dispatch(touchData.bubbleChain);
 					}
-                
+                    if (newTarget != touchData.target)
+						touchEvent.dispatch(touchData.bubbleChain);
+                }
                 // dispatch events
                 for each (touchID in sProcessedTouchIDs)
                     getCurrentTouch(touchID).dispatchEvent(touchEvent);
