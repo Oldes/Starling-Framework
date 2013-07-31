@@ -144,21 +144,23 @@ package starling.textures
             mDataUploaded = true;
         }
         
+		public function recreateBase():void {
+			var context:Context3D = Starling.context;
+			var isPot:Boolean = mWidth  == getNextPowerOfTwo(mWidth) && 
+								mHeight == getNextPowerOfTwo(mHeight);
+			
+			if (isPot)
+				mBase = context.createTexture(mWidth, mHeight, mFormat, 
+											  mOptimizedForRenderTexture);
+			else
+				mBase = context["createRectangleTexture"](mWidth, mHeight, mFormat,
+														  mOptimizedForRenderTexture);
+		}
         // texture backup (context loss)
         
         private function onContextCreated():void
         {
-            var context:Context3D = Starling.context;
-            var isPot:Boolean = mWidth  == getNextPowerOfTwo(mWidth) && 
-                                mHeight == getNextPowerOfTwo(mHeight);
-            
-            if (isPot)
-                mBase = context.createTexture(mWidth, mHeight, mFormat, 
-                                              mOptimizedForRenderTexture);
-            else
-                mBase = context["createRectangleTexture"](mWidth, mHeight, mFormat,
-                                                          mOptimizedForRenderTexture);
-            
+            recreateBase();
             // a chance to upload texture data
             mDataUploaded = false;
             mOnRestore();
