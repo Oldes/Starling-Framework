@@ -627,15 +627,16 @@ package starling.core
             // figure out touch phase
             switch (event.type)
             {
+				case TouchEvent.TOUCH_MOVE:  phase = TouchPhase.MOVED; break;
+				case MouseEvent.MOUSE_MOVE: 
+                    phase = (mLeftMouseDown ? TouchPhase.MOVED : TouchPhase.HOVER); break;
                 case TouchEvent.TOUCH_BEGIN: phase = TouchPhase.BEGAN; break;
-                case TouchEvent.TOUCH_MOVE:  phase = TouchPhase.MOVED; break;
                 case TouchEvent.TOUCH_END:   phase = TouchPhase.ENDED; break;
                 case MouseEvent.MOUSE_DOWN:  phase = TouchPhase.BEGAN; break;
                 case MouseEvent.MOUSE_UP:    phase = TouchPhase.ENDED; break;
-                case MouseEvent.MOUSE_MOVE: 
-                    phase = (mLeftMouseDown ? TouchPhase.MOVED : TouchPhase.HOVER); break;
+				case MouseEvent.MOUSE_OVER:  phase = TouchPhase.HOVER; break;
+                
             }
-            
             // move position into viewport bounds
             globalX = mStage.stageWidth  * (globalX - mViewPort.x) / mViewPort.width;
             globalY = mStage.stageHeight * (globalY - mViewPort.y) / mViewPort.height;
@@ -647,7 +648,7 @@ package starling.core
         private function get touchEventTypes():Array
         {
             return Mouse.supportsCursor || !multitouchEnabled ?
-                [ MouseEvent.MOUSE_DOWN,  MouseEvent.MOUSE_MOVE, MouseEvent.MOUSE_UP ] :
+                [ MouseEvent.MOUSE_DOWN,  MouseEvent.MOUSE_MOVE, MouseEvent.MOUSE_UP, MouseEvent.MOUSE_OVER ] :
                 [ TouchEvent.TOUCH_BEGIN, TouchEvent.TOUCH_MOVE, TouchEvent.TOUCH_END ];  
         }
         
