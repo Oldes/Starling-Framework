@@ -236,8 +236,6 @@ package starling.textures
         public static function fromAtfData(data:ByteArray, scale:Number=1, useMipMaps:Boolean=true, 
                                            loadAsync:Function=null):Texture
         {
-            const eventType:String = "textureReady"; // defined here for backwards compatibility
-            
             var context:Context3D = Starling.context;
             if (context == null) throw new MissingContextError();
             
@@ -249,23 +247,13 @@ package starling.textures
                 atfData.width, atfData.height, useMipMaps && atfData.numTextures > 1, 
                 false, false, scale);
             
-            if (async)
-                nativeTexture.addEventListener(eventType, onTextureReady);
-            
-            concreteTexture.uploadAtfData(data, 0, async);
+            concreteTexture.uploadAtfData(data, 0, async, loadAsync);
             concreteTexture.onRestore = function():void
             {
-                concreteTexture.uploadAtfData(data, 0, async);
+                concreteTexture.uploadAtfData(data, 0, async, loadAsync);
             };
             
             return concreteTexture;
-            
-            function onTextureReady(event:Event):void
-            {
-                nativeTexture.removeEventListener(eventType, onTextureReady);
-                if (loadAsync.length == 1) loadAsync(concreteTexture);
-                else loadAsync();
-            }
         }
         
         /** Creates a texture with a certain size and color.

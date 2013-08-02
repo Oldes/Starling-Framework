@@ -18,11 +18,11 @@ package starling.textures
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.ByteArray;
+	import flash.events.Event;
     
     import starling.core.RenderSupport;
     import starling.core.Starling;
     import starling.errors.MissingContextError;
-    import starling.events.Event;
     import starling.utils.Color;
     import starling.utils.getNextPowerOfTwo;
 
@@ -135,13 +135,23 @@ package starling.textures
         
         /** Uploads ATF data from a ByteArray to the texture. Note that the size of the
          *  ATF-encoded data must be exactly the same as the original texture size. */
-        public function uploadAtfData(data:ByteArray, offset:int=0, async:Boolean=false):void
+        public function uploadAtfData(data:ByteArray, offset:int=0, async:Boolean=false, callback:Function=null):void
         {
+			const eventType:String = "textureReady"; // defined here for backwards compatibility
             var potTexture:flash.display3D.textures.Texture = 
                   mBase as flash.display3D.textures.Texture;
-            
+            if (async && callback != null) {
+				potTexture.addEventListener(eventType, onTextureReady);
+			}
             potTexture.uploadCompressedTextureFromByteArray(data, offset, async);
             mDataUploaded = true;
+			return;
+			function onTextureReady(event:Event):void
+            {
+                potTexture.removeEventListener(eventType, onTextureReady);
+                if (callback.length == 1) callback(this);
+                else callback();
+            }
         }
         
 		public function recreateBase():void {
