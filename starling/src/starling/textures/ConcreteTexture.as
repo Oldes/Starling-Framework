@@ -18,11 +18,11 @@ package starling.textures
     import flash.geom.Point;
     import flash.geom.Rectangle;
     import flash.utils.ByteArray;
-	import flash.events.Event;
     
     import starling.core.RenderSupport;
     import starling.core.Starling;
     import starling.errors.MissingContextError;
+    import starling.events.Event;
     import starling.utils.Color;
     import starling.utils.getNextPowerOfTwo;
 
@@ -134,23 +134,40 @@ package starling.textures
         }
         
         /** Uploads ATF data from a ByteArray to the texture. Note that the size of the
-         *  ATF-encoded data must be exactly the same as the original texture size. */
-        public function uploadAtfData(data:ByteArray, offset:int=0, async:Boolean=false, callback:Function=null):void
+         *  ATF-encoded data must be exactly the same as the original texture size.
+         *  
+         *  <p>The 'async' parameter may be either a boolean value or a callback function.
+         *  If it's <code>false</code> or <code>null</code>, the texture will be decoded
+         *  synchronously and will be visible right away. If it's <code>true</code> or a function,
+         *  the data will be decoded asynchronously. The texture will remain unchanged until the
+         *  upload is complete, at which time the callback function will be executed. This is the
+         *  expected function definition: <code>function(texture:Texture):void;</code></p>
+         */
+        public function uploadAtfData(data:ByteArray, offset:int=0, async:*=null):void
         {
-			const eventType:String = "textureReady"; // defined here for backwards compatibility
+            const eventType:String = "textureReady"; // defined here for backwards compatibility
+            
+            var self:ConcreteTexture = this;
+            var isAsync:Boolean = async is Function || async === true;
             var potTexture:flash.display3D.textures.Texture = 
                   mBase as flash.display3D.textures.Texture;
-            if (async && callback != null) {
-				potTexture.addEventListener(eventType, onTextureReady);
-			}
-            potTexture.uploadCompressedTextureFromByteArray(data, offset, async);
+            
+            if (async is Function)
+                potTexture.addEventListener(eventType, onTextureReady);
+            
+            potTexture.uploadCompressedTextureFromByteArray(data, offset, isAsync);
             mDataUploaded = true;
-			return;
-			function onTextureReady(event:Event):void
+            
+            function onTextureReady(event:Object):void
             {
                 potTexture.removeEventListener(eventType, onTextureReady);
-                if (callback.length == 1) callback(this);
-                else callback();
+                
+                var callback:Function = async as Function;
+                if (callback)
+                {
+                    if (callback.length == 1) callback(self);
+                    else callback();
+                }
             }
         }
         
@@ -213,7 +230,7 @@ package starling.textures
         {
             Starling.current.removeEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
             
-            if (Starling.handleLostContext && value)
+            if (Starling.handleLostContext && value != null)
             {
                 mOnRestore = value;
                 Starling.current.addEventListener(Event.CONTEXT3D_CREATE, onContextCreated);
