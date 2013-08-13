@@ -93,10 +93,10 @@ package starling.animation
             
             for (var i:int=mObjects.length-1; i>=0; --i)
             {
-                var tween:Tween = mObjects[i] as Tween;
-                if (tween && tween.target == target)
+                var tween:Object = mObjects[i] as Object;
+                if (tween && tween.hasOwnProperty("target") && tween.target == target)
                 {
-                    tween.removeEventListener(Event.REMOVE_FROM_JUGGLER, onRemove);
+                    if(tween is Tween) tween.removeEventListener(Event.REMOVE_FROM_JUGGLER, onRemove);
                     mObjects[i] = null;
                 }
             }
