@@ -44,6 +44,7 @@ package starling.core
     import starling.events.EventDispatcher;
     import starling.events.ResizeEvent;
     import starling.events.TouchPhase;
+    import starling.events.TouchProcessor;
     import starling.utils.HAlign;
     import starling.utils.VAlign;
     
@@ -652,6 +653,10 @@ package starling.core
             
             // enqueue touch in touch processor
             mTouchProcessor.enqueue(touchID, phase, globalX, globalY, pressure, width, height);
+            
+            // allow objects that depend on mouse-over state to be updated immediately
+            if (event.type == MouseEvent.MOUSE_UP)
+                mTouchProcessor.enqueue(touchID, TouchPhase.HOVER, globalX, globalY);
         }
         
         private function get touchEventTypes():Array

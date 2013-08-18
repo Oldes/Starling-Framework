@@ -8,20 +8,14 @@
 //
 // =================================================================================================
 
-package starling.core
+package starling.events
 {
     import flash.geom.Point;
 	import flash.ui.Mouse;
     import flash.utils.getDefinitionByName;
     
     import starling.display.Stage;
-    import starling.events.KeyboardEvent;
-    import starling.events.Touch;
-    import starling.events.TouchEvent;
-    import starling.events.TouchPhase;
 
-    use namespace starling_internal;
-    
     /** The TouchProcessor is used to convert mouse and touch events of the conventional
      *  Flash stage to Starling's TouchEvents.
      *  
@@ -101,7 +95,6 @@ package starling.core
         public function advanceTime(passedTime:Number):void
         {
             var i:int;
-            var touchID:int;
             var touch:Touch;
             
             mElapsedTime += passedTime;
@@ -139,7 +132,7 @@ package starling.core
                                 touchArgs[0], touchArgs[1], touchArgs[2], touchArgs[3],
                                 touchArgs[4], touchArgs[5], touchArgs[6]);
                     
-                    sProcessedTouchIDs[sProcessedTouchIDs.length] = touchID; // avoiding 'push'
+                    sProcessedTouchIDs[sProcessedTouchIDs.length] = touch.id; // avoiding 'push'
                     touch.setUpdated(true);
                 }
 
