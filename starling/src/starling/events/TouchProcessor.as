@@ -11,6 +11,7 @@
 package starling.events
 {
     import flash.geom.Point;
+	import flash.ui.Mouse;
     import flash.utils.getDefinitionByName;
     
     import starling.display.DisplayObject;
@@ -183,11 +184,19 @@ package starling.events
                 }
             }
             
-            // if the target of a hovering touch changed, we dispatch the event to the previous
-            // target to notify it that it's no longer being hovered over.
-            for each (var touchData:Object in sHoveringTouchData)
-                if (touchData.touch.target != touchData.target)
-                    touchEvent.dispatch(touchData.bubbleChain);
+			// if the target of a hovering touch changed, we dispatch the event to the previous
+			// target to notify it that it's no longer being hovered over.
+			for each (var touchData:Object in sHoveringTouchData) {
+				var newTarget:Object = touchData.touch.target;
+				if (newTarget) {
+					var newCursor:String = newTarget["cursor"] as String || "auto";
+					if(Mouse.cursor != newCursor) {
+						Mouse.cursor = newCursor;
+					}
+				}
+				if (newTarget != touchData.target)
+					touchEvent.dispatch(touchData.bubbleChain);
+			}
             
             // dispatch events for the rest of our updated touches
             for each (touch in touches)
