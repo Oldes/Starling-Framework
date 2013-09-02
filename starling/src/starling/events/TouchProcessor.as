@@ -10,6 +10,7 @@
 
 package starling.events
 {
+	import core.Global;
     import flash.geom.Point;
 	import flash.ui.Mouse;
     import flash.utils.getDefinitionByName;
@@ -189,10 +190,7 @@ package starling.events
 			for each (var touchData:Object in sHoveringTouchData) {
 				var newTarget:Object = touchData.touch.target;
 				if (newTarget) {
-					var newCursor:String = newTarget["cursor"] as String || "auto";
-					if(Mouse.cursor != newCursor) {
-						Mouse.cursor = newCursor;
-					}
+					Global.onHover(newTarget);
 				}
 				if (newTarget != touchData.target)
 					touchEvent.dispatch(touchData.bubbleChain);

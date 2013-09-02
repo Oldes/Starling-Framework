@@ -148,7 +148,7 @@ package starling.display
         private var mOrientationChanged:Boolean;
         private var mFilter:FragmentFilter;
 		
-		public var numId:uint;
+		private var mNumId:uint;
         
         /** Helper objects. */
         private static var sAncestors:Vector.<DisplayObject> = new <DisplayObject>[];
@@ -754,5 +754,8 @@ package starling.display
         /** The stage the display object is connected to, or null if it is not connected 
          *  to the stage. */
         public function get stage():Stage { return this.base as Stage; }
+		
+		public function get numId():int { return mNumId; }
+		public function set numId(value:int):void { mNumId = value; }
     }
 }

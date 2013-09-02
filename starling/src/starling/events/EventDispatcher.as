@@ -38,7 +38,7 @@ package starling.events
     public class EventDispatcher
     {
 		/** this property is used to define Mouse cursor, which may be different from classic ones **/
-		public var cursor:String;
+		private var mCursor:String;
 		
         private var mEventListeners:Dictionary;
         
@@ -202,5 +202,8 @@ package starling.events
                 mEventListeners[type] as Vector.<Function> : null;
             return listeners ? listeners.length != 0 : false;
         }
+		
+		public function get cursor():String { return mCursor; }
+		public function set cursor(value:String):void { mCursor = value; }
     }
 }
