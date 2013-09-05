@@ -170,6 +170,16 @@ package starling.events
             // hit test our updated touches
             for each (touch in touches)
             {
+				if (touch.id == 0) {
+					switch(touch.phase) {
+						case TouchPhase.BEGAN:
+							Global.onMouseDown();
+							break;
+						case TouchPhase.ENDED:
+							Global.onMouseUp();
+							break;
+					}
+				}
                 // hovering touches need special handling (see below)
                 if (touch.phase == TouchPhase.HOVER && touch.target)
                     sHoveringTouchData[sHoveringTouchData.length] = {
