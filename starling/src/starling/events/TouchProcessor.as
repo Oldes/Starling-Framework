@@ -62,12 +62,15 @@ package starling.events
         private var mRoot:DisplayObject;
         private var mElapsedTime:Number;
         private var mTouchMarker:TouchMarker;
-        
-        private var mCurrentTouches:Vector.<Touch>;
-        private var mQueue:Vector.<Array>;
-        
         private var mShiftDown:Boolean = false;
         private var mCtrlDown:Boolean  = false;
+        
+        /** A vector of arrays with the arguments that were passed to the "enqueue"
+         *  method (the oldest being at the end of the vector). */
+        protected var mQueue:Vector.<Array>;
+        
+        /** The list of all currently active touches. */
+        protected var mCurrentTouches:Vector.<Touch>;
         
         /** Helper objects. */
         private static var sUpdatedTouches:Vector.<Touch> = new <Touch>[];
@@ -378,13 +381,6 @@ package starling.events
         
         /** The stage object to which the touch objects are (per default) dispatched. */
         public function get stage():Stage { return mStage; }
-        
-        /** A vector of arrays with the arguments that were passed to the "enqueue"
-         *  method (the oldest being at the end of the vector). */
-        protected function get queue():Vector.<Array> { return mQueue; }
-        
-        /** The list of all currently active touches. */
-        protected function get currentTouches():Vector.<Touch> { return mCurrentTouches; }
         
         // keyboard handling
         

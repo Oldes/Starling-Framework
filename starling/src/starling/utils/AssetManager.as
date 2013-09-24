@@ -44,23 +44,32 @@ package starling.utils
      *    <li>Textures, either from Bitmaps or ATF data</li>
      *    <li>Texture atlases</li>
      *    <li>Bitmap Fonts</li>
+     *    <li>Sounds</li>
      *    <li>XML data</li>
      *    <li>JSON data</li>
+     *    <li>ByteArrays</li>
      *  </ul>
      *  </p>
      *  
      *  <p>For more information on how to add assets from different sources, read the documentation
      *  of the "enqueue()" method.</p>
+     * 
+     *  <strong>Context Loss</strong>
+     *  
+     *  <p>When the stage3D context is lost (and you have enabled 'Starling.handleLostContext'),
+     *  the AssetManager will automatically restore all loaded textures. To save memory, it will
+     *  get them from their original sources. Since this is done asynchronously, your images might
+     *  not reappear all at once, but during a timeframe of several seconds. If you want, you can
+     *  pause your game during that time; the AssetManager dispatches an "Event.TEXTURES_RESTORED"
+     *  event when all textures have been restored.</p>
      */
     public class AssetManager extends EventDispatcher
     {
-        private const SUPPORTED_EXTENSIONS:Vector.<String> = 
-            new <String>["png", "jpg", "jpeg", "gif", "atf", "mp3", "xml", "fnt", "pex", "json"]; 
-        
         private var mScaleFactor:Number;
         private var mUseMipMaps:Boolean;
         private var mCheckPolicyFile:Boolean;
         private var mVerbose:Boolean;
+        private var mAbortLoading:Boolean;
         private var mNumLostTextures:int;
         private var mRestoredTextures:int;
         
@@ -79,10 +88,9 @@ package starling.utils
          *  how enqueued bitmaps will be converted to textures. */
         public function AssetManager(scaleFactor:Number=1, useMipmaps:Boolean=false)
         {
-            mVerbose = false;
+            mVerbose = mCheckPolicyFile = mAbortLoading = false;
             mScaleFactor = scaleFactor > 0 ? scaleFactor : Starling.contentScaleFactor;
             mUseMipMaps = useMipmaps;
-            mCheckPolicyFile = false;
             mRawAssets = [];
             mTextures = new Dictionary();
             mAtlases = new Dictionary();
@@ -344,18 +352,25 @@ package starling.utils
             delete mByteArrays[name];
         }
         
-        /** Removes assets of all types and empties the queue. */
+        /** Empties the queue and aborts any pending load operations. */
+        public function purgeQueue():void
+        {
+            mAbortLoading = true;
+            mRawAssets.length = 0;
+        }
+        
+        /** Removes assets of all types, empties the queue and aborts any pending load operations.*/
         public function purge():void
         {
             log("Purging all assets, emptying queue");
+            purgeQueue();
             
             for each (var texture:Texture in mTextures)
                 texture.dispose();
             
             for each (var atlas:TextureAtlas in mAtlases)
                 atlas.dispose();
-            
-            mRawAssets.length = 0;
+
             mTextures = new Dictionary();
             mAtlases = new Dictionary();
             mSounds = new Dictionary();
@@ -426,10 +441,7 @@ package starling.utils
                         else
                         {
                             var extension:String = rawAsset["extension"].toLowerCase();
-                            if (SUPPORTED_EXTENSIONS.indexOf(extension) != -1)
-                                enqueueWithName(rawAsset["url"]);
-                            else
-                                log("Ignoring unsupported file '" + rawAsset["name"] + "'");
+                            enqueueWithName(rawAsset["url"]);
                         }
                     }
                 }
@@ -475,10 +487,14 @@ package starling.utils
             var currentRatio:Number = 0.0;
             var timeoutID:uint;
             
+            mAbortLoading = false;
             resume();
             
             function resume():void
             {
+                if (mAbortLoading)
+                    return;
+                
                 currentRatio = mRawAssets.length ? 1.0 - (mRawAssets.length / numElements) : 1.0;
                 
                 if (mRawAssets.length)
@@ -552,7 +568,11 @@ package starling.utils
                 var texture:Texture;
                 var bytes:ByteArray;
                 
-                if (asset is Sound)
+                if (mAbortLoading)
+                {
+                    onComplete();
+                }
+                else if (asset is Sound)
                 {
                     addSound(name, asset as Sound);
                     onComplete();
@@ -697,25 +717,24 @@ package starling.utils
                 
                 switch (extension)
                 {
-                    case "atf":
-                    case "fnt":
-                    case "json":
-                    case "pex":
-                    case "xml":
-                        onComplete(bytes);
-                        break;
                     case "mp3":
                         sound = new Sound();
                         sound.loadCompressedDataFromByteArray(bytes, bytes.length);
                         bytes.clear();
                         onComplete(sound);
                         break;
-                    default:
+                    case "jpg":
+                    case "jpeg":
+                    case "png":
+                    case "gif":
                         var loaderContext:LoaderContext = new LoaderContext(mCheckPolicyFile);
                         var loader:Loader = new Loader();
                         loaderContext.imageDecodingPolicy = ImageDecodingPolicy.ON_LOAD;
                         loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoaderComplete);
                         loader.loadBytes(bytes, loaderContext);
+                        break;
+                    default: // any XML / JSON / binary data 
+                        onComplete(bytes);
                         break;
                 }
             }
