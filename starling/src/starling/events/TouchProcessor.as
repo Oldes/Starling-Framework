@@ -302,12 +302,12 @@ package starling.events
 				
 				if (nearbyTap)
 				{
-					touch.setTapCount(nearbyTap.tapCount + 1);
+					touch.tapCount = nearbyTap.tapCount + 1;
 					mLastTaps.splice(mLastTaps.indexOf(nearbyTap), 1);
 				}
 				else
 				{
-					touch.setTapCount(1);
+					touch.tapCount = 1;
 				}
 				
 				mLastTaps.push(touch.clone());
