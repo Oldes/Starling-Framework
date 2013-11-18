@@ -29,7 +29,6 @@ package starling.utils
     import starling.textures.AtfData;
     import starling.textures.Texture;
     import starling.textures.TextureAtlas;
-	import starling.utils.FastMath;
     
     /** Dispatched when all textures have been restored after a context loss. */
     [Event(name="texturesRestored", type="starling.events.Event")]
@@ -69,11 +68,13 @@ package starling.utils
         private var mUseMipMaps:Boolean;
         private var mCheckPolicyFile:Boolean;
         private var mVerbose:Boolean;
-        private var mAbortLoading:Boolean;
         private var mNumLostTextures:int;
-        private var mRestoredTextures:int;
+        private var mNumRestoredTextures:int;
         
-        private var mRawAssets:Array;
+        private var mQueue:Array;
+        private var mIsLoading:Boolean;
+        private var mTimeoutID:uint;
+        
         private var mTextures:Dictionary;
         private var mAtlases:Dictionary;
         private var mSounds:Dictionary;
@@ -88,10 +89,10 @@ package starling.utils
          *  how enqueued bitmaps will be converted to textures. */
         public function AssetManager(scaleFactor:Number=1, useMipmaps:Boolean=false)
         {
-            mVerbose = mCheckPolicyFile = mAbortLoading = false;
+            mVerbose = mCheckPolicyFile = mIsLoading = false;
             mScaleFactor = scaleFactor > 0 ? scaleFactor : Starling.contentScaleFactor;
             mUseMipMaps = useMipmaps;
-            mRawAssets = [];
+            mQueue = [];
             mTextures = new Dictionary();
             mAtlases = new Dictionary();
             mSounds = new Dictionary();
@@ -355,8 +356,9 @@ package starling.utils
         /** Empties the queue and aborts any pending load operations. */
         public function purgeQueue():void
         {
-            mAbortLoading = true;
-            mRawAssets.length = 0;
+            mIsLoading = false;
+            mQueue.length = 0;
+            clearTimeout(mTimeoutID);
         }
         
         /** Removes assets of all types, empties the queue and aborts any pending load operations.*/
@@ -386,10 +388,12 @@ package starling.utils
          *  
          *  <ul>
          *    <li>Strings containing an URL to a local or remote resource. Supported types:
-         *        <code>png, jpg, gif, atf, mp3, xml, fnt, pex, json</code>.</li>
+         *        <code>png, jpg, gif, atf, mp3, xml, fnt, json, binary</code>.</li>
          *    <li>Instances of the File class (AIR only) pointing to a directory or a file.
          *        Directories will be scanned recursively for all supported types.</li>
          *    <li>Classes that contain <code>static</code> embedded assets.</li>
+         *    <li>If the file extension is not recognized, the data is analyzed to see if
+         *        contains XML or JSON data. If it's neither, it is stored as ByteArray.</li>
          *  </ul>
          *  
          *  <p>Suitable object names are extracted automatically: A file named "image.png" will be
@@ -403,7 +407,7 @@ package starling.utils
          *  "getTexture()" method. All other XMLs are available via "getXml()".</p>
          *  
          *  <p>If you pass in JSON data, it will be parsed into an object and will be available via
-         *  "getObject()".</p>   
+         *  "getObject()".</p>
          */
         public function enqueue(...rawAssets):void
         {
@@ -439,10 +443,7 @@ package starling.utils
                         if (rawAsset["isDirectory"])
                             enqueue.apply(this, rawAsset["getDirectoryListing"]());
                         else
-                        {
-                            var extension:String = rawAsset["extension"].toLowerCase();
                             enqueueWithName(rawAsset["url"]);
-                        }
                     }
                 }
                 else if (rawAsset is String)
@@ -464,7 +465,7 @@ package starling.utils
             if (name == null) name = getName(asset);
             log("Enqueuing '" + name + "'");
             
-            mRawAssets.push({
+            mQueue.push({
                 name: name,
                 asset: asset
             });
@@ -482,25 +483,30 @@ package starling.utils
             if (Starling.context == null)
                 throw new Error("The Starling instance needs to be ready before textures can be loaded.");
             
-            var xmls:Vector.<XML> = new <XML>[];
-            var numElements:int = mRawAssets.length;
-            var currentRatio:Number = 0.0;
-            var timeoutID:uint;
+            if (mIsLoading)
+                throw new Error("The queue is already being processed");
             
-            mAbortLoading = false;
+            var xmls:Vector.<XML> = new <XML>[];
+            var numElements:int = mQueue.length;
+            var currentRatio:Number = 0.0;
+            
+            mIsLoading = true;
             resume();
             
             function resume():void
             {
-                if (mAbortLoading)
+                if (!mIsLoading)
                     return;
                 
-                currentRatio = mRawAssets.length ? 1.0 - (mRawAssets.length / numElements) : 1.0;
+                currentRatio = mQueue.length ? 1.0 - (mQueue.length / numElements) : 1.0;
                 
-                if (mRawAssets.length)
-                    timeoutID = setTimeout(processNext, 1);
+                if (mQueue.length)
+                    mTimeoutID = setTimeout(processNext, 1);
                 else
+                {
                     processXmls();
+                    mIsLoading = false;
+                }
                 
                 if (onProgress != null)
                     onProgress(currentRatio);
@@ -508,8 +514,8 @@ package starling.utils
             
             function processNext():void
             {
-                var assetInfo:Object = mRawAssets.pop();
-                clearTimeout(timeoutID);
+                var assetInfo:Object = mQueue.pop();
+                clearTimeout(mTimeoutID);
                 processRawAsset(assetInfo.name, assetInfo.asset, xmls, progress, resume);
             }
             
@@ -526,24 +532,33 @@ package starling.utils
                 for each (var xml:XML in xmls)
                 {
                     var name:String;
+                    var texture:Texture;
                     var rootNode:String = xml.localName();
                     
                     if (rootNode == "TextureAtlas")
                     {
                         name = getName(xml.@imagePath.toString());
+                        texture = getTexture(name);
                         
-                        var atlasTexture:Texture = getTexture(name);
-                        addTextureAtlas(name, new TextureAtlas(atlasTexture, xml));
-                        removeTexture(name, false);
+                        if (texture)
+                        {
+                            addTextureAtlas(name, new TextureAtlas(texture, xml));
+                            removeTexture(name, false);
+                        }
+                        else log("Cannot create atlas: texture '" + name + "' is missing.");
                     }
                     else if (rootNode == "font")
                     {
                         name = getName(xml.pages.page.@file.toString());
-                        log("Adding bitmap font '" + name + "'");
+                        texture = getTexture(name);
                         
-                        var fontTexture:Texture = getTexture(name);
-                        TextField.registerBitmapFont(new BitmapFont(fontTexture, xml), name);
-                        removeTexture(name, false);
+                        if (texture)
+                        {
+                            log("Adding bitmap font '" + name + "'");
+                            TextField.registerBitmapFont(new BitmapFont(texture, xml), name);
+                            removeTexture(name, false);
+                        }
+                        else log("Cannot create bitmap font: texture '" + name + "' is missing.");
                     }
                     else
                         throw new Error("XML contents not recognized: " + rootNode);
@@ -554,7 +569,7 @@ package starling.utils
             
             function progress(ratio:Number):void
             {
-                onProgress(currentRatio + (1.0 / numElements) * FastMath.min(1.0, ratio) * 0.99);
+                onProgress(currentRatio + (1.0 / numElements) * Math.min(1.0, ratio) * 0.99);
             }
         }
         
@@ -568,7 +583,7 @@ package starling.utils
                 var texture:Texture;
                 var bytes:ByteArray;
                 
-                if (mAbortLoading)
+                if (!mIsLoading)
                 {
                     onComplete();
                 }
@@ -589,9 +604,9 @@ package starling.utils
                             catch (e:Error) { log("Texture restoration failed: " + e.message); }
                             
                             asset.bitmapData.dispose();
-                            mRestoredTextures++;
+                            mNumRestoredTextures++;
                             
-                            if (mNumLostTextures == mRestoredTextures)
+                            if (mNumLostTextures == mNumRestoredTextures)
                                 dispatchEventWith(Event.TEXTURES_RESTORED);
                         });
                     };
@@ -616,9 +631,9 @@ package starling.utils
                                 catch (e:Error) { log("Texture restoration failed: " + e.message); }
                                 
                                 asset.clear();
-                                mRestoredTextures++;
+                                mNumRestoredTextures++;
                                 
-                                if (mNumLostTextures == mRestoredTextures)
+                                if (mNumLostTextures == mNumRestoredTextures)
                                     dispatchEventWith(Event.TEXTURES_RESTORED);
                             });
                         };
@@ -831,6 +846,13 @@ package starling.utils
         }
         
         // properties
+        
+        /** The queue contains one 'Object' for each enqueued asset. Each object has 'asset'
+         *  and 'name' properties, pointing to the raw asset and its name, respectively. */
+        protected function get queue():Array { return mQueue; }
+        
+        /** Returns the number of raw assets that have been enqueued, but not yet loaded. */
+        public function get numQueuedAssets():int { return mQueue.length; }
         
         /** When activated, the class will trace information about added/enqueued assets. */
         public function get verbose():Boolean { return mVerbose; }

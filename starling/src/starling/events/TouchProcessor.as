@@ -72,6 +72,13 @@ package starling.events
         /** The list of all currently active touches. */
         protected var mCurrentTouches:Vector.<Touch>;
         
+        /** A vector of arrays with the arguments that were passed to the "enqueue"
+         *  method (the oldest being at the end of the vector). */
+        protected var mQueue:Vector.<Array>;
+        
+        /** The list of all currently active touches. */
+        protected var mCurrentTouches:Vector.<Touch>;
+        
         /** Helper objects. */
         private static var sUpdatedTouches:Vector.<Touch> = new <Touch>[];
         private static var sHoveringTouchData:Vector.<Object> = new <Object>[];
