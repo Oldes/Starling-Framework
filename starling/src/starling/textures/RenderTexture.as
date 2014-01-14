@@ -77,7 +77,7 @@ package starling.textures
             mActiveTexture = Texture.empty(width, height, PMA, false, true, scale);
             mActiveTexture.root.onRestore = mActiveTexture.root.clear;
             
-            super(mActiveTexture, new Rectangle(0, 0, width, height), true);
+            super(mActiveTexture, new Rectangle(0, 0, width, height), true, null, false);
             
             var rootWidth:Number  = mActiveTexture.root.width;
             var rootHeight:Number = mActiveTexture.root.height;
@@ -198,14 +198,15 @@ package starling.textures
             }
         }
         
-        /** Clears the texture (restoring full transparency). */
-        public function clear():void
+        /** Clears the render texture with a certain color and alpha value. Call without any
+         *  arguments to restore full transparency. */
+        public function clear(rgb:uint=0, alpha:Number=0.0):void
         {
             var context:Context3D = Starling.context;
             if (context == null) throw new MissingContextError();
             
             mSupport.renderTarget = mActiveTexture;
-            mSupport.clear();
+            mSupport.clear(rgb, alpha);
             mSupport.renderTarget = null;
         }
         
