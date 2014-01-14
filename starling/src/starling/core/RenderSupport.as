@@ -229,7 +229,14 @@ package starling.core
             if (target) Starling.context.setRenderToTexture(target.base);
             else        Starling.context.setRenderToBackBuffer();
         }
-        
+        public function setRenderTarget(target:Texture, enableDepthAndStencil:Boolean = false, antiAlias:int = 0, surfaceSelector:int = 0):void
+		{
+			mRenderTarget = target;
+            applyClipRect();
+            
+            if (target) Starling.context.setRenderToTexture(target.base, enableDepthAndStencil, antiAlias, surfaceSelector);
+            else        Starling.context.setRenderToBackBuffer();
+		}
         // clipping
         
         /** The clipping rectangle can be used to limit rendering in the current render target to
