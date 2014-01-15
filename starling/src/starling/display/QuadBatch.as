@@ -10,8 +10,6 @@
 
 package starling.display
 {
-    import com.adobe.utils.AGALMiniAssembler;
-    
     import flash.display3D.Context3D;
     import flash.display3D.Context3DProgramType;
     import flash.display3D.Context3DTextureFormat;
@@ -93,21 +91,8 @@ package starling.display
         private static var sHelperMatrix:Matrix = new Matrix();
         private static var sRenderAlpha:Vector.<Number> = new <Number>[1.0, 1.0, 1.0, 1.0];
         private static var sRenderMatrix:Matrix3D = new Matrix3D();
+        private static var sProgramNameCache:Dictionary = new Dictionary();
         
-        /** Program strings to help when we create a new program */
-        private static const sBasicVertexProgram : Vector.<String> = new <String>[
-                "m44 op, va0, vc1 \n" + // 4x4 matrix transform to output clipspace
-                "mov v1, va2      \n"   // pass texture coordinates to fragment program
-              ,
-                "m44 op, va0, vc1 \n" + // 4x4 matrix transform to output clipspace
-                "mul v0, va1, vc0 \n" + // multiply alpha (vc0) with color (va1)
-                "mov v1, va2      \n"]; // pass texture coordinates to fragment program
-        private static const sBasicFragmentProgram : Vector.<String> = new <String>[
-                "tex  oc,  v1, fs0 <???> \n"   // sample texture 0
-              ,
-                "tex ft1,  v1, fs0 <???> \n" + // sample texture 0
-                "mul  oc, ft1,  v0       \n"]; // multiply color with texel color
-                
         /** Creates a new QuadBatch instance with empty batch data. */
         public function QuadBatch()
         {
@@ -193,7 +178,7 @@ package starling.display
             mSyncRequired = false;
         }
         
-        /** Uploads the raw data of all batched quads to the vertex buffer */
+        /** Uploads the raw data of all batched quads to the vertex buffer. */
         private function syncBuffers():void
         {
             if (mVertexBuffer == null)
@@ -202,8 +187,8 @@ package starling.display
             }
             else
             {
-                // as last parameter, we could also use 'mNumQuads * 4', but on some GPU hardware (iOS!),
-                // this is slower than updating the complete buffer.
+                // as last parameter, we could also use 'mNumQuads * 4', but on some
+                // GPU hardware (iOS!), this is slower than updating the complete buffer.
                 mVertexBuffer.uploadFromVector(mVertexData.rawData, 0, mVertexData.numVertices);
                 mSyncRequired = false;
             }
@@ -228,7 +213,7 @@ package starling.display
             MatrixUtil.convertTo3D(mvpMatrix, sRenderMatrix);
             RenderSupport.setBlendFactors(pma, blendMode ? blendMode : this.blendMode);
             
-            context.setProgram( getProgram(tinted) );
+            context.setProgram(getProgram(tinted));
             context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, 0, sRenderAlpha, 1);
             context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 1, sRenderMatrix, true);
             context.setVertexBufferAt(0, mVertexBuffer, VertexData.POSITION_OFFSET, 
@@ -653,62 +638,97 @@ package starling.display
         
         // program management
         
-        private function getProgram(tinted:Boolean) : Program3D
+        private function getProgram(tinted:Boolean):Program3D
         {
             var target:Starling = Starling.current;
-            // get the name: default to the quad unless we have a texture
             var programName:String = QUAD_PROGRAM_NAME;
+            
             if (mTexture)
+                programName = getImageProgramName(tinted, mTexture.mipMapping, 
+                    mTexture.repeat, mTexture.format, mSmoothing);
+            
+            var program:Program3D = target.getProgram(programName);
+            
+            if (!program)
             {
-                // get the bitfield for this program to work out the name
-                var bitField:uint = 0;
-                if (tinted)                                                 bitField |= 1;
-                if (mTexture.mipMapping)                                    bitField |= 1 << 1;
-                if (mTexture.repeat)                                        bitField |= 1 << 2;
-                if (mSmoothing == TextureSmoothing.NONE)                    bitField |= 1 << 3;
-                else if (mSmoothing == TextureSmoothing.TRILINEAR)          bitField |= 1 << 4;
-                if (mTexture.format == Context3DTextureFormat.COMPRESSED)   bitField |= 1 << 5;
-                else if (mTexture.format == "compressedAlpha")              bitField |= 1 << 6;
-                programName = "QB_i." + bitField.toString(16);
-            }
+                // this is the input data we'll pass to the shaders:
+                // 
+                // va0 -> position
+                // va1 -> color
+                // va2 -> texCoords
+                // vc0 -> alpha
+                // vc1 -> mvpMatrix
+                // fs0 -> texture
+                
+                var vertexShader:String;
+                var fragmentShader:String;
 
-            // retreive the program from our main dictionary
-            var prog : Program3D = target.getProgram(programName);
-            if (!prog)
-            {
-                // create it
-                var assembler:AGALMiniAssembler = new AGALMiniAssembler();
-                var vertexProgramCode:String;
-                var fragmentProgramCode:String;
-
-                // special case for no texture i.e. quad
-                if (!mTexture)
+                if (!mTexture) // Quad-Shaders
                 {
-                    // quad
-                    vertexProgramCode =
+                    vertexShader =
                         "m44 op, va0, vc1 \n" + // 4x4 matrix transform to output clipspace
                         "mul v0, va1, vc0 \n";  // multiply alpha (vc0) with color (va1)
-                    fragmentProgramCode =
+                    
+                    fragmentShader =
                         "mov oc, v0       \n";  // output color
                 }
-                // image types:
-                else
+                else // Image-Shaders
                 {
-                    // from our static strings using the "tinted" field
-                    vertexProgramCode = sBasicVertexProgram[int(tinted)];
-                    var tmpFragment : String = sBasicFragmentProgram[int(tinted)];
-
-                    // replace the ???
-                    var flags:String = RenderSupport.getTextureLookupFlags(
-                        mTexture.format, mTexture.mipMapping, mTexture.repeat, mSmoothing);
-                    fragmentProgramCode = tmpFragment.replace("<???>", flags);
+                    vertexShader = tinted ?
+                        "m44 op, va0, vc1 \n" + // 4x4 matrix transform to output clipspace
+                        "mul v0, va1, vc0 \n" + // multiply alpha (vc0) with color (va1)
+                        "mov v1, va2      \n"   // pass texture coordinates to fragment program
+                        :
+                        "m44 op, va0, vc1 \n" + // 4x4 matrix transform to output clipspace
+                        "mov v1, va2      \n";  // pass texture coordinates to fragment program
+                    
+                    fragmentShader = tinted ?
+                        "tex ft1,  v1, fs0 <???> \n" + // sample texture 0
+                        "mul  oc, ft1,  v0       \n"   // multiply color with texel color
+                        :
+                        "tex  oc,  v1, fs0 <???> \n";  // sample texture 0
+                    
+                    fragmentShader = fragmentShader.replace("<???>",
+                        RenderSupport.getTextureLookupFlags(
+                            mTexture.format, mTexture.mipMapping, mTexture.repeat, smoothing));
                 }
-                // create the program
-                prog = target.registerProgram(programName,
-                                    assembler.assemble(Context3DProgramType.VERTEX, vertexProgramCode),
-                                    assembler.assemble(Context3DProgramType.FRAGMENT, fragmentProgramCode) );
+                
+                program = target.registerProgramFromSource(programName,
+                    vertexShader, fragmentShader);
             }
-            return prog;
+            
+            return program;
+        }
+        
+        private static function getImageProgramName(tinted:Boolean, mipMap:Boolean=true, 
+                                                    repeat:Boolean=false, format:String="bgra",
+                                                    smoothing:String="bilinear"):String
+        {
+            var bitField:uint = 0;
+            
+            if (tinted) bitField |= 1;
+            if (mipMap) bitField |= 1 << 1;
+            if (repeat) bitField |= 1 << 2;
+            
+            if (smoothing == TextureSmoothing.NONE)
+                bitField |= 1 << 3;
+            else if (smoothing == TextureSmoothing.TRILINEAR)
+                bitField |= 1 << 4;
+            
+            if (format == Context3DTextureFormat.COMPRESSED)
+                bitField |= 1 << 5;
+            else if (format == "compressedAlpha")
+                bitField |= 1 << 6;
+            
+            var name:String = sProgramNameCache[bitField];
+            
+            if (name == null)
+            {
+                name = "QB_i." + bitField.toString(16);
+                sProgramNameCache[bitField] = name;
+            }
+            
+            return name;
         }
     }
 }
