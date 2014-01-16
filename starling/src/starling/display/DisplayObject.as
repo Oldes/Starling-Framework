@@ -520,23 +520,12 @@ package starling.display
             
             mX = matrix.tx;
             mY = matrix.ty;
-			mScaleX = FastMath.sqrt(matrix.a * matrix.a + matrix.b * matrix.b);
-            mSkewY  = Math.acos(matrix.a / mScaleX);
             
-            if (!isEquivalent(matrix.b, mScaleX * FastMath.sin(mSkewY)))
-            {
-                mScaleX *= -1;
-                mSkewY = Math.acos(matrix.a / mScaleX);
-            }
+            mSkewX = Math.atan(-matrix.c / matrix.d);
+            mSkewY = Math.atan( matrix.b / matrix.a);
             
-            mScaleY = FastMath.sqrt(matrix.c * matrix.c + matrix.d * matrix.d);
-            mSkewX  = Math.acos(matrix.d / mScaleY);
-            
-            if (!isEquivalent(matrix.c, -mScaleY * FastMath.sin(mSkewX)))
-            {
-                mScaleY *= -1;
-                mSkewX = Math.acos(matrix.d / mScaleY);
-            }
+            mScaleX = matrix.a / Math.cos(mSkewY);
+            mScaleY = matrix.d / Math.cos(mSkewX);
             
             if (isEquivalent(mSkewX, mSkewY))
             {
