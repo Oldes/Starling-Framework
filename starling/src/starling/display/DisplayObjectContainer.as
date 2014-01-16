@@ -451,7 +451,7 @@ package starling.display
         }
         
         /** The number of children of this container. */
-        public function get numChildren():int { return mChildren.length; }
+        [inline] public final function get numChildren():int { return mChildren.length; }
         
         // helpers
         
