@@ -352,7 +352,7 @@ package starling.core
         private function requestContext3D(stage3D:Stage3D, renderMode:String, profile:Object):void
         {
             const AVAILABLE_PROFILES:Vector.<String> =
-                new <String>["baselineConstrained", "baseline", "baselineExtended"];
+                new <String>["baselineExtended", "baseline", "baselineConstrained"];
             
             var supportsProfileArray:Boolean = "requestContext3DMatchingProfiles" in stage3D;
             var profiles:Vector.<String>;
@@ -380,10 +380,10 @@ package starling.core
             {
                 if (profiles.length == 1 || !supportsProfileArray)
                 {
-                    // sort profiles ascending
+                    // sort profiles descending
                     profiles.sort(compareProfiles);
                     
-                    mProfile = profiles[0];
+                    mProfile = profiles[profiles.length-1];
                     stage3D.requestContext3D(renderMode, mProfile);
                 }
                 else
@@ -489,9 +489,6 @@ package starling.core
             updateNativeOverlay();
             mSupport.nextFrame();
             
-            if (!mShareContext)
-                RenderSupport.clear(mStage.color, 1.0);
-            
             var scaleX:Number = mViewPort.width  / mStage.stageWidth;
             var scaleY:Number = mViewPort.height / mStage.stageHeight;
             
@@ -504,6 +501,9 @@ package starling.core
                 mViewPort.y < 0 ? -mViewPort.y / scaleY : 0.0,
                 mClippedViewPort.width  / scaleX, 
                 mClippedViewPort.height / scaleY);
+            
+            if (!mShareContext)
+                RenderSupport.clear(mStage.color, 1.0);
             
             mStage.render(mSupport, 1.0);
             mSupport.finishQuadBatch();
