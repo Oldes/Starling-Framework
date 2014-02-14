@@ -15,6 +15,7 @@ package starling.animation
 	
 	import starling.utils.FastMath;
 
+
     /** A DelayedCall allows you to execute a method after a certain time has passed. Since it 
      *  implements the IAnimatable interface, it can be added to a juggler. In most cases, you 
      *  do not have to use this class directly; the juggler class contains a method to delay
@@ -59,17 +60,24 @@ package starling.animation
             
             if (previousTime < mTotalTime && mCurrentTime >= mTotalTime)
             {                
-                mCall.apply(null, mArgs);
-                
                 if (mRepeatCount == 0 || mRepeatCount > 1)
                 {
+                    mCall.apply(null, mArgs);
+                    
                     if (mRepeatCount > 0) mRepeatCount -= 1;
                     mCurrentTime = 0;
                     advanceTime((previousTime + time) - mTotalTime);
                 }
                 else
                 {
+                    // save call & args: they might be changed through an event listener
+                    var call:Function = mCall;
+                    var args:Array = mArgs;
+                    
+                    // in the callback, people might want to call "reset" and re-add it to the
+                    // juggler; so this event has to be dispatched *before* executing 'call'.
                     dispatchEventWith(Event.REMOVE_FROM_JUGGLER);
+                    call.apply(null, args);
                 }
             }
         }
