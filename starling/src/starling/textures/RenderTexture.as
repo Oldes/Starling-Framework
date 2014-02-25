@@ -171,7 +171,8 @@ package starling.textures
             sClipRect.setTo(0, 0, mActiveTexture.width, mActiveTexture.height);
 
             mSupport.pushClipRect(sClipRect);
-            mSupport.renderTarget = mActiveTexture;
+			mSupport.setRenderTarget(mActiveTexture, false, 4);
+            //mSupport.renderTarget = mActiveTexture;
             mSupport.clear();
             
             // draw buffer
