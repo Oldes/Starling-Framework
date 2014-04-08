@@ -466,7 +466,7 @@ package starling.display
          *  In that case, Starling will apply the matrix, but not update the corresponding 
          *  properties.</p>
          * 
-         *  @returns CAUTION: not a copy, but the actual object! */
+         *  <p>CAUTION: not a copy, but the actual object!</p> */
         public function get transformationMatrix():Matrix
         {
             if (mOrientationChanged)
@@ -520,6 +520,8 @@ package starling.display
         
         public function set transformationMatrix(matrix:Matrix):void
         {
+            const PI_Q:Number = Math.PI / 4.0;
+
             mOrientationChanged = false;
             mTransformationMatrix.copyFrom(matrix);
             mPivotX = mPivotY = 0;
@@ -529,15 +531,16 @@ package starling.display
             
             mSkewX = Math.atan(-matrix.c / matrix.d);
             mSkewY = Math.atan( matrix.b / matrix.a);
-            
-            var cos_mSkewX:Number = Math.cos(mSkewX);
-            var cos_mSkewY:Number = Math.cos(mSkewY);
 
-            mScaleX = (cos_mSkewY == 0.0) ?  matrix.b / Math.sin(mSkewY)
-                                          :  matrix.a / cos_mSkewY;
-            mScaleY = (cos_mSkewX == 0.0) ? -matrix.c / Math.sin(mSkewX)
-                                          :  matrix.d / cos_mSkewX;
-            
+            // NaN check ("isNaN" causes allocation)
+            if (mSkewX != mSkewX) mSkewX = 0.0;
+            if (mSkewY != mSkewY) mSkewY = 0.0;
+
+            mScaleY = (mSkewX > -PI_Q && mSkewX < PI_Q) ?  matrix.d / Math.cos(mSkewX)
+                                                        : -matrix.c / Math.sin(mSkewX);
+            mScaleX = (mSkewY > -PI_Q && mSkewY < PI_Q) ?  matrix.a / Math.cos(mSkewY)
+                                                        :  matrix.b / Math.sin(mSkewY);
+
             if (isEquivalent(mSkewX, mSkewY))
             {
                 mRotation = mSkewX;

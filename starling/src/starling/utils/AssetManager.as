@@ -761,14 +761,15 @@ package starling.utils
         {
             var extension:String = null;
             var urlLoader:URLLoader = null;
+            var url:String = null;
             
             if (rawAsset is Class)
             {
-                setTimeout(onComplete, 1, new rawAsset());
+                setTimeout(complete, 1, new rawAsset());
             }
             else if (rawAsset is String)
             {
-                var url:String = rawAsset as String;
+                url = rawAsset as String;
                 extension = url.split("?")[0].split(".").pop().toLowerCase();
                 
                 urlLoader = new URLLoader();
@@ -782,7 +783,7 @@ package starling.utils
             function onIoError(event:IOErrorEvent):void
             {
                 log("IO error: " + event.text);
-                onComplete(null);
+                complete(null);
             }
             
             function onLoadProgress(event:ProgressEvent):void
@@ -793,7 +794,7 @@ package starling.utils
             
             function onUrlLoaderComplete(event:Object):void
             {
-                var bytes:ByteArray = urlLoader.data as ByteArray;
+                var bytes:ByteArray = transformData(urlLoader.data as ByteArray, url);
                 var sound:Sound;
                 
                 urlLoader.removeEventListener(IOErrorEvent.IO_ERROR, onIoError);
@@ -806,7 +807,7 @@ package starling.utils
                         sound = new Sound();
                         sound.loadCompressedDataFromByteArray(bytes, bytes.length);
                         bytes.clear();
-                        onComplete(sound);
+                        complete(sound);
                         break;
                     case "jpg":
                     case "jpeg":
@@ -819,7 +820,7 @@ package starling.utils
                         loader.loadBytes(bytes, loaderContext);
                         break;
                     default: // any XML / JSON / binary data 
-                        onComplete(bytes);
+                        complete(bytes);
                         break;
                 }
             }
@@ -828,7 +829,18 @@ package starling.utils
             {
                 urlLoader.data.clear();
                 event.target.removeEventListener(Event.COMPLETE, onLoaderComplete);
-                onComplete(event.target.content);
+                complete(event.target.content);
+            }
+            
+            function complete(asset:Object):void
+            {
+                // On mobile, it is not allowed / endorsed to make stage3D calls while the app
+                // is in the background. Thus, we pause queue processing if that's the case.
+                
+                if (SystemUtil.isDesktop)
+                    onComplete(asset);
+                else
+                    SystemUtil.executeWhenApplicationIsActive(onComplete, asset);
             }
         }
         
@@ -859,7 +871,15 @@ package starling.utils
                 throw new ArgumentError("Cannot extract names for objects of type '" + name + "'");
             }
         }
-        
+
+        /** This method is called when raw byte data has been loaded from an URL or a file.
+         *  Override it to process the downloaded data in some way (e.g. decompression) or
+         *  to cache it on disk. */
+        protected function transformData(data:ByteArray, url:String):ByteArray
+        {
+            return data;
+        }
+
         /** This method is called during loading of assets when 'verbose' is activated. Per
          *  default, it traces 'message' to the console. */
         protected function log(message:String):void

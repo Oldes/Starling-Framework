@@ -92,9 +92,10 @@ package starling.display
         /** Disposes the resources of all children. */
         public override function dispose():void
         {
-            for (var i:int=mChildren.length-1; i>=0; --i)
-                mChildren[i].dispose();
-            
+			var index:int = mChildren.length;
+			while(index-- > 0){
+				mChildren[index].dispose();
+            }
             super.dispose();
         }
         
@@ -253,6 +254,22 @@ package starling.display
             for (var i:int=beginIndex; i<=endIndex; ++i)
                 removeChildAt(beginIndex, dispose);
         }
+		/** Recursively removes from parent and disposes this object and all it's children
+		 *  Does not fire any 'removed' events! */
+		public function removeAndDispose():void {
+			var index:int = mChildren.length;
+			while (index-- > 0) {
+				var child:DisplayObject = mChildren[index];
+                child.setParent(null);
+				if (child is DisplayObjectContainer) {
+					DisplayObjectContainer(child).removeAndDispose();
+				} else {
+					child.dispose();
+				}
+			}
+			removeFromParent();
+			mChildren.length = 0
+		}
         
         /** Returns a child object at a certain index. */
         public function getChildAt(index:int):DisplayObject
