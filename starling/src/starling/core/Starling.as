@@ -213,6 +213,7 @@ package starling.core
         private static var sCurrent:Starling;
         private static var sHandleLostContext:Boolean;
         private static var sContextData:Dictionary = new Dictionary(true);
+        private static var sAll:Vector.<Starling> = new <Starling>[];
         
         // construction
         
@@ -249,8 +250,9 @@ package starling.core
             if (rootClass == null) throw new ArgumentError("Root class must not be null");
             if (viewPort == null) viewPort = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
             if (stage3D == null) stage3D = stage.stage3Ds[0];
-            
+
             SystemUtil.initialize();
+            sAll.push(this);
             makeCurrent();
             
             mRootClass = rootClass;
@@ -274,7 +276,7 @@ package starling.core
             // for context data, we actually reference by stage3D, since it survives a context loss
             sContextData[stage3D] = new Dictionary();
             sContextData[stage3D][PROGRAM_DATA_NAME] = new Dictionary();
-            
+
             // all other modes are problematic in Starling, so we force those here
             stage.scaleMode = StageScaleMode.NO_SCALE;
             stage.align = StageAlign.TOP_LEFT;
@@ -344,6 +346,9 @@ package starling.core
                 if (disposeContext3D.length == 1) disposeContext3D(false);
                 else disposeContext3D();
             }
+
+            var index:int =  sAll.indexOf(this);
+            if (index != -1) sAll.splice(index, 1);
         }
         
         // functions
@@ -1017,6 +1022,9 @@ package starling.core
         
         /** The currently active Starling instance. */
         public static function get current():Starling { return sCurrent; }
+
+        /** All Starling instances. <p>CAUTION: not a copy, but the actual object! Do not modify!</p> */
+        public static function get all():Vector.<Starling> { return sAll; }
         
         /** The render context of the currently active Starling instance. */
         public static function get context():Context3D { return sCurrent ? sCurrent.context : null; }
