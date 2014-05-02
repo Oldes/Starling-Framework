@@ -65,8 +65,9 @@ package starling.display
     public class DisplayObjectContainer extends DisplayObject
     {
         // members
+
         private var mChildren:Vector.<DisplayObject>;
-		
+		private var mTouchGroup:Boolean;
 		private var mIsDispatching:Boolean = true;
         
         /** Helper objects. */
@@ -389,19 +390,21 @@ package starling.display
             if (forTouch && (!visible || !touchable))
                 return null;
             
+            var target:DisplayObject = null;
             var localX:Number = localPoint.x;
             var localY:Number = localPoint.y;
-            
             var numChildren:int = mChildren.length;
+
             for (var i:int=numChildren-1; i>=0; --i) // front to back!
             {
                 var child:DisplayObject = mChildren[i];
                 getTransformationMatrix(child, sHelperMatrix);
                 
                 MatrixUtil.transformCoords(sHelperMatrix, localX, localY, sHelperPoint);
-                var target:DisplayObject = child.hitTest(sHelperPoint, forTouch);
+                target = child.hitTest(sHelperPoint, forTouch);
                 
-                if (target) return target;
+                if (target)
+                    return forTouch && mTouchGroup ? this : target;
             }
             
             return null;
@@ -470,6 +473,13 @@ package starling.display
         /** The number of children of this container. */
         [inline] public final function get numChildren():int { return mChildren.length; }
         
+        /** If a container is a 'touchGroup', it will act as a single touchable object.
+         *  Touch events will have the container as target, not the touched child.
+         *  (Similar to 'mouseChildren' in the classic display list, but with inverted logic.)
+         *  @default false */
+        public function get touchGroup():Boolean { return mTouchGroup; }
+        public function set touchGroup(value:Boolean):void { mTouchGroup = value; }
+
         // helpers
         
         private static function mergeSort(input:Vector.<DisplayObject>, compareFunc:Function, 
