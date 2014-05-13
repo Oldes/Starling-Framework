@@ -370,7 +370,13 @@ package starling.core
             function requestNextProfile():void
             {
                 currentProfile = profiles.shift();
-                mStage3D.requestContext3D(renderMode, currentProfile);
+
+                try { execute(mStage3D.requestContext3D, renderMode, currentProfile); }
+                catch (error:Error)
+                {
+                    if (profiles.length != 0) setTimeout(requestNextProfile, 1);
+                    else throw error;
+                }
             }
             
             function onCreated(event:Event):void
@@ -574,10 +580,12 @@ package starling.core
             textField.width = mStage.stageWidth * 0.75;
             textField.autoSize = TextFieldAutoSize.CENTER;
             textField.text = message;
-            textField.x = (mStage.stageWidth - textField.width) / 2;
+            textField.x = (mStage.stageWidth  - textField.width)  / 2;
             textField.y = (mStage.stageHeight - textField.height) / 2;
             textField.background = true;
             textField.backgroundColor = 0x440000;
+
+            updateNativeOverlay();
             nativeOverlay.addChild(textField);
         }
         
