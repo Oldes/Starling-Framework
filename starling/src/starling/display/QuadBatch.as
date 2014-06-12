@@ -499,7 +499,7 @@ package starling.display
                 objectAlpha = 1.0;
                 blendMode = object.blendMode;
                 ignoreCurrentFilter = true;
-                if (quadBatches.length == 0) quadBatches.push(new QuadBatch());
+                if (quadBatches.length == 0) quadBatches[0]= new QuadBatch();
                 else quadBatches[0].reset();
             }
             
@@ -568,7 +568,7 @@ package starling.display
                                             smoothing, blendMode, numQuads))
                 {
                     quadBatchID++;
-                    if (quadBatches.length <= quadBatchID) quadBatches.push(new QuadBatch());
+                    if (quadBatches.length <= quadBatchID) quadBatches[quadBatches.length]=new QuadBatch();
                     quadBatch = quadBatches[quadBatchID];
                     quadBatch.reset();
                 }
