@@ -507,7 +507,7 @@ package starling.utils
                 asset = unescape(asset["url"]);
             
             if (name == null)    name = getName(asset);
-            if (options == null) options = mDefaultTextureOptions;
+            if (options == null) options = mDefaultTextureOptions.clone();
             else                 options = options.clone();
             
             log("Enqueuing '" + name + "'");
@@ -706,7 +706,7 @@ package starling.utils
                     
                     if (AtfData.isAtfData(bytes))
                     {
-                        options.onReady = onComplete;
+                        options.onReady = prependCallback(options.onReady, onComplete);
                         texture = Texture.fromData(bytes, options);
                         texture.root.onRestore = function():void
                         {
@@ -746,7 +746,7 @@ package starling.utils
                 }
                 else
                 {
-                    log("Ignoring unsupported asset type: " + getQualifiedClassName(asset));
+                    addObject(name, asset);
                     onComplete();
                 }
                 
@@ -768,7 +768,22 @@ package starling.utils
             }
         }
         
-        private function loadRawAsset(rawAsset:Object, onProgress:Function, onComplete:Function):void
+        /** This method is called internally for each element of the queue when it is loaded.
+         *  'rawAsset' is typically either a class (pointing to an embedded asset) or a string
+         *  (containing the path to a file). For texture data, it will also be called after a
+         *  context loss.
+         *
+         *  <p>The method has to transform this object into one of the types that the AssetManager
+         *  can work with, e.g. a Bitmap, a Sound, XML data, or a ByteArray. This object needs to
+         *  be passed to the 'onComplete' callback.</p>
+         *
+         *  <p>The calling method will then process this data accordingly (e.g. a Bitmap will be
+         *  transformed into a texture). Unknown types will be available via 'getObject()'.</p>
+         *
+         *  <p>When overriding this method, you can call 'onProgress' with a number between 0 and 1
+         *  to update the total queue loading progress.</p>
+         */
+        protected function loadRawAsset(rawAsset:Object, onProgress:Function, onComplete:Function):void
         {
             var extension:String = null;
             var urlLoader:URLLoader = null;
@@ -881,7 +896,6 @@ package starling.utils
          *  assets. */
         protected function getName(rawAsset:Object):String
         {
-            var matches:Array;
             var name:String;
             
             if (rawAsset is String || rawAsset is FileReference)
@@ -974,18 +988,34 @@ package starling.utils
             return null;
         }
 
-        private function getBasenameFromUrl(url:String):String
+        /** Extracts the base name of a file path or URL, i.e. the file name without extension. */
+        protected function getBasenameFromUrl(url:String):String
         {
             var matches:Array = NAME_REGEX.exec(url);
             if (matches && matches.length > 0) return matches[1];
             else return null;
         }
 
-        private function getExtensionFromUrl(url:String):String
+        /** Extracts the file extension from an URL. */
+        protected function getExtensionFromUrl(url:String):String
         {
             var matches:Array = NAME_REGEX.exec(url);
             if (matches && matches.length > 1) return matches[2];
             else return null;
+        }
+
+        private function prependCallback(oldCallback:Function, newCallback:Function):Function
+        {
+            // TODO: it might make sense to add this (together with "appendCallback")
+            //       as a public utility method ("FunctionUtil"?)
+
+            if (oldCallback == null) return newCallback;
+            else if (newCallback == null) return oldCallback;
+            else return function():void
+            {
+                newCallback();
+                oldCallback();
+            };
         }
 
         // properties
@@ -997,24 +1027,30 @@ package starling.utils
         /** Returns the number of raw assets that have been enqueued, but not yet loaded. */
         public function get numQueuedAssets():int { return mQueue.length; }
         
-        /** When activated, the class will trace information about added/enqueued assets. */
+        /** When activated, the class will trace information about added/enqueued assets.
+         *  @default false */
         public function get verbose():Boolean { return mVerbose; }
         public function set verbose(value:Boolean):void { mVerbose = value; }
         
         /** For bitmap textures, this flag indicates if mip maps should be generated when they 
          *  are loaded; for ATF textures, it indicates if mip maps are valid and should be
-         *  used. */
+         *  used. @default false */
         public function get useMipMaps():Boolean { return mDefaultTextureOptions.mipMapping; }
         public function set useMipMaps(value:Boolean):void { mDefaultTextureOptions.mipMapping = value; }
         
         /** Textures that are created from Bitmaps or ATF files will have the scale factor 
-         *  assigned here. */
+         *  assigned here. @default 1 */
         public function get scaleFactor():Number { return mDefaultTextureOptions.scale; }
         public function set scaleFactor(value:Number):void { mDefaultTextureOptions.scale = value; }
+
+        /** Textures that are created from Bitmaps will be uploaded to the GPU with the
+         *  <code>Context3DTextureFormat</code> assigned to this property. @default "bgra" */
+        public function get textureFormat():String { return mDefaultTextureOptions.format; }
+        public function set textureFormat(value:String):void { mDefaultTextureOptions.format = value; }
         
         /** Specifies whether a check should be made for the existence of a URL policy file before
          *  loading an object from a remote server. More information about this topic can be found 
-         *  in the 'flash.system.LoaderContext' documentation. */
+         *  in the 'flash.system.LoaderContext' documentation. @default false */
         public function get checkPolicyFile():Boolean { return mCheckPolicyFile; }
         public function set checkPolicyFile(value:Boolean):void { mCheckPolicyFile = value; }
 
