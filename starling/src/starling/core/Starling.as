@@ -299,7 +299,8 @@ package starling.core
                     throw new ArgumentError("When sharing the context3D, " +
                         "the actual profile has to be supplied");
                 else
-                    mProfile = profile as String;
+                    mProfile = "profile" in mStage3D.context3D ? mStage3D.context3D["profile"] :
+                                                                 profile as String;
                 
                 mShareContext = true;
                 setTimeout(initialize, 1); // we don't call it right away, because Starling should
@@ -419,14 +420,10 @@ package starling.core
             mContext.enableErrorChecking = mEnableErrorChecking;
             contextData[PROGRAM_DATA_NAME] = new Dictionary();
             
-            if (mProfile == null)
-                mProfile = mContext["profile"];
-            
-            updateViewPort(true);
-            
             trace("[Starling] Initialization complete.");
             trace("[Starling] Display Driver:", mContext.driverInfo);
             
+            updateViewPort(true);
             dispatchEventWith(Event.CONTEXT3D_CREATE, false, mContext);
         }
         
@@ -984,8 +981,9 @@ package starling.core
         public function get shareContext() : Boolean { return mShareContext; }
         public function set shareContext(value : Boolean) : void { mShareContext = value; }
         
-        /** The Context3D profile as requested in the constructor. Beware that if you are 
-         *  using a shared context, this is simply what you passed to the Starling constructor. */
+        /** The Context3D profile used for rendering. Beware that if you are using a shared
+         *  context in AIR 3.9 / Flash Player 11 or below, this is simply what you passed to
+         *  the Starling constructor. */
         public function get profile():String { return mProfile; }
         
         /** Indicates that if the device supports HiDPI screens Starling will attempt to allocate
