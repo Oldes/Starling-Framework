@@ -21,6 +21,7 @@ package starling.filters
     import flash.geom.Rectangle;
     import flash.system.Capabilities;
     import flash.utils.getQualifiedClassName;
+	import starling.utils.FastMath;
     
     import starling.core.RenderSupport;
     import starling.core.Starling;
@@ -349,8 +350,8 @@ package starling.filters
             var numPassTextures:int = mNumPasses > 1 ? 2 : 1;
             var needsUpdate:Boolean = mPassTextures == null || 
                 mPassTextures.length != numPassTextures ||
-                Math.abs(mPassTextures[0].nativeWidth  - width  * scale) > 0.1 ||
-                Math.abs(mPassTextures[0].nativeHeight - height * scale) > 0.1;
+                FastMath.abs(mPassTextures[0].nativeWidth  - width  * scale) > 0.1 ||
+                FastMath.abs(mPassTextures[0].nativeHeight - height * scale) > 0.1;
             
             if (needsUpdate)
             {
