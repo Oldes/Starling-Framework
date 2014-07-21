@@ -268,7 +268,7 @@ package starling.display
 					child.dispose();
 				}
 			}
-			removeFromParent();
+			removeFromParent(true);
 			mChildren.length = 0
 		}
         
