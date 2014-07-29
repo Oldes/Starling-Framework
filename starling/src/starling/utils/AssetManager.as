@@ -39,6 +39,10 @@ package starling.utils
      *  The 'data' property of the Event contains the URL-String that could not be loaded. */
     [Event(name="ioError", type="starling.events.Event")]
 
+    /** Dispatched when an XML or JSON file couldn't be parsed.
+     *  The 'data' property of the Event contains the name of the asset that could not be parsed. */
+    [Event(name="parseError", type="starling.events.Event")]
+
     /** The AssetManager handles loading and accessing a variety of asset types. You can 
      *  add assets directly (via the 'add...' methods) or asynchronously via a queue. This allows
      *  you to deal with assets in a unified way, no matter if they are loaded from a file, 
@@ -76,6 +80,7 @@ package starling.utils
         private var mStarling:Starling;
         private var mNumLostTextures:int;
         private var mNumRestoredTextures:int;
+        private var mNumLoadingQueues:int;
 
         private var mDefaultTextureOptions:TextureOptions;
         private var mCheckPolicyFile:Boolean;
@@ -532,9 +537,12 @@ package starling.utils
          */
         public function loadQueue(onProgress:Function):void
         {
+            if (onProgress == null)
+                throw new ArgumentError("Argument 'onProgress' must not be null");
+
             if (mQueue.length == 0)
             {
-                execute(onProgress, 1.0);
+                onProgress(1.0);
                 return;
             }
 
@@ -556,6 +564,7 @@ package starling.utils
             }
 
             mQueue.length = 0;
+            mNumLoadingQueues++;
             addEventListener(Event.CANCEL, cancel);
 
             function loadQueueElement(index:int, assetInfo:Object):void
@@ -589,7 +598,7 @@ package starling.utils
                 for (i=0; i<len; ++i)
                     sum += assetProgress[i];
 
-                execute(onProgress, sum / len * 0.9);
+                onProgress(sum / len * 0.9);
             }
             
             function processXmls():void
@@ -645,6 +654,7 @@ package starling.utils
             function cancel():void
             {
                 removeEventListener(Event.CANCEL, cancel);
+                mNumLoadingQueues--;
                 canceled = true;
             }
 
@@ -661,8 +671,8 @@ package starling.utils
                     {
                         if (!canceled)
                         {
-                            removeEventListener(Event.CANCEL, cancel);
-                            execute(onProgress, 1.0);
+                            cancel();
+                            onProgress(1.0);
                         }
                     }, 1);
                 }, 1);
@@ -772,7 +782,11 @@ package starling.utils
                     else if (byteArrayStartsWith(bytes, "{") || byteArrayStartsWith(bytes, "["))
                     {
                         try { object = JSON.parse(bytes.readUTFBytes(bytes.length)); }
-                        catch (e:Error) { log("Could not parse JSON: " + e.message); }
+                        catch (e:Error)
+                        {
+                            log("Could not parse JSON: " + e.message);
+                            dispatchEventWith(Event.PARSE_ERROR, false, name);
+                        }
 
                         if (object) addObject(name, object);
 
@@ -782,7 +796,11 @@ package starling.utils
                     else if (byteArrayStartsWith(bytes, "<"))
                     {
                         try { xml = new XML(bytes); }
-                        catch (e:Error) { log("Could not parse XML: " + e.message); }
+                        catch (e:Error)
+                        {
+                            log("Could not parse XML: " + e.message);
+                            dispatchEventWith(Event.PARSE_ERROR, false, name);
+                        }
 
                         process(xml);
                         bytes.clear();
@@ -1095,6 +1113,9 @@ package starling.utils
         public function get verbose():Boolean { return mVerbose; }
         public function set verbose(value:Boolean):void { mVerbose = value; }
         
+        /** Indicates if a queue is currently being loaded. */
+        public function get isLoading():Boolean { return mNumLoadingQueues > 0; }
+
         /** For bitmap textures, this flag indicates if mip maps should be generated when they 
          *  are loaded; for ATF textures, it indicates if mip maps are valid and should be
          *  used. @default false */
