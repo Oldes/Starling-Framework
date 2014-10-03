@@ -159,11 +159,11 @@ package starling.display
         /** @private */ 
         public function DisplayObject()
         {
-            if (Capabilities.isDebugger && 
+            /*if (Capabilities.isDebugger && 
                 getQualifiedClassName(this) == "starling.display::DisplayObject")
             {
                 throw new AbstractClassError();
-            }
+            }*/
             
             mX = mY = mPivotX = mPivotY = mRotation = mSkewX = mSkewY = 0.0;
             mScaleX = mScaleY = mAlpha = 1.0;            
