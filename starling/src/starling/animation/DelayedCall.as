@@ -119,7 +119,7 @@ package starling.animation
             delayedCall.mCall = null;
             delayedCall.mArgs = null;
             delayedCall.removeEventListeners();
-            sPool.push(delayedCall);
+            sPool[sPool.length]=delayedCall;
         }
     }
 }

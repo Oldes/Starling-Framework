@@ -344,7 +344,7 @@ package starling.animation
             tween.mTarget = null;
             tween.mTransitionFunc = null;
             tween.removeEventListeners();
-            sTweenPool.push(tween);
+            sTweenPool[sTweenPool.length]=tween; //push
         }
     }
 }
