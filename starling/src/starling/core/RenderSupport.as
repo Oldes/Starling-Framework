@@ -1,7 +1,7 @@
 // =================================================================================================
 //
 //	Starling Framework
-//	Copyright 2011 Gamua OG. All Rights Reserved.
+//	Copyright 2011-2014 Gamua. All Rights Reserved.
 //
 //	This program is free software. You can redistribute and/or modify it
 //	in accordance with the terms of the accompanying license agreement.
@@ -298,8 +298,8 @@ package starling.core
                 }
                 else
                 {
-                    width  = Starling.current.backBufferWidth;
-                    height = Starling.current.backBufferHeight;
+                    width  = Starling.current.viewPortWidth;
+                    height = Starling.current.viewPortHeight;
                 }
                 
                 // convert to pixel coordinates (matrix transformation ends up in range [-1, 1])
