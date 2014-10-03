@@ -183,6 +183,22 @@ package starling.textures
                                        matrix:Matrix=null, alpha:Number=1.0,
                                        antiAliasing:int=0):void
         {
+			if (!mBufferReady) {
+				mSupport.setRenderTarget(mActiveTexture, antiAliasing);
+				mSupport.clear();
+			}
+		 
+			mDrawing = true;
+		 
+			if (renderBlock != null)
+			     execute(renderBlock, object, matrix, alpha);
+		 
+			mDrawing = false;
+			mSupport.finishQuadBatch();
+			mSupport.nextFrame();
+			mSupport.renderTarget = null;
+			mSupport.popClipRect();
+			/*
             var context:Context3D = Starling.context;
             if (context == null) throw new MissingContextError();
             
@@ -223,7 +239,7 @@ package starling.textures
                 mSupport.nextFrame();
                 mSupport.renderTarget = null;
                 mSupport.popClipRect();
-            }
+            }*/
         }
         
         /** Clears the render texture with a certain color and alpha value. Call without any
