@@ -356,7 +356,7 @@ package starling.core
             var currentProfile:String;
             
             if (profile == "auto")
-                profiles = ["baselineExtended", "baseline", "baselineConstrained"];
+                profiles = ["standard", "baselineExtended", "baseline", "baselineConstrained"];
             else if (profile is String)
                 profiles = [profile as String];
             else if (profile is Array)
@@ -887,7 +887,7 @@ package starling.core
          *
          *  <p>The returned number is not always in pixel units: HiDPI-displays with an activated
          *  'supportHighResolutions' setting will return the size in points. For actual pixel
-         *  values, call 'backBufferWidth' instead. */
+         *  values, call 'backBufferWidth' instead.</p> */
         public function get viewPortWidth():Number
         {
             return mClippedViewPort.width;
@@ -898,7 +898,7 @@ package starling.core
          *
          *  <p>The returned number is not always in pixel units: HiDPI-displays with an activated
          *  'supportHighResolutions' setting will return the size in points. For actual pixel
-         *  values, call 'backBufferHeight' instead. */
+         *  values, call 'backBufferHeight' instead.</p> */
         public function get viewPortHeight():Number
         {
             return mClippedViewPort.height;
