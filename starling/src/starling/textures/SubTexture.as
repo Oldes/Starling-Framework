@@ -10,6 +10,7 @@
 
 package starling.textures
 {
+	import starling.core.starling_internal;
     import flash.display3D.textures.TextureBase;
     import flash.geom.Matrix;
     import flash.geom.Point;
@@ -83,8 +84,9 @@ package starling.textures
         /** Disposes the parent texture if this texture owns it. */
         public override function dispose():void
         {
-            if (mOwnsParent) mParent.dispose();
-            super.dispose();
+            //if (mOwnsParent) mParent.dispose();
+			//super.dispose();
+			SubTexture.starling_internal::toPool(this);
         }
         
         /** @inheritDoc */
@@ -208,5 +210,67 @@ package starling.textures
         
         /** @inheritDoc */
         public override function get frame():Rectangle { return mFrame; }
+		
+		
+		
+		// SubTexture pooling...
+		
+		public function release():void {
+			//trace("RELEASE SubTexture");
+			if (mOwnsParent) mParent.dispose();
+			mParent = null;
+			mFrame = null;
+			mTransformationMatrix.setTo(1, 0, 0, 1, 0, 0);
+		}
+		
+		public function reset(parentTexture:Texture, region:Rectangle,
+                                   ownsParent:Boolean=false, frame:Rectangle=null,
+                                   rotated:Boolean=false):SubTexture {
+            if (region == null)
+                region = new Rectangle(0, 0, parentTexture.width, parentTexture.height);
+            
+            mParent = parentTexture;
+            mFrame = frame ? frame.clone() : null; //TODO: use rectangle Pool?
+            mOwnsParent = ownsParent;
+            mRotated = rotated;
+            mWidth  = rotated ? region.height : region.width;
+            mHeight = rotated ? region.width  : region.height;
+            
+            if (rotated)
+            {
+                mTransformationMatrix.translate(0, -1);
+                mTransformationMatrix.rotate(Math.PI / 2.0);
+            }
+            
+            mTransformationMatrix.scale(region.width  / mParent.width,
+                                        region.height / mParent.height);
+            mTransformationMatrix.translate(region.x / mParent.width,
+                                            region.y / mParent.height);
+			return this;
+		}
+		
+		private static var sPool:Vector.<SubTexture> = new Vector.<SubTexture>(3000);
+		private static var sPoolTop:int = 0;
+		
+		/** @private */
+        starling_internal static function fromPool(parentTexture:Texture, region:Rectangle,
+                                   ownsParent:Boolean=false, frame:Rectangle=null,
+                                   rotated:Boolean=false):SubTexture
+        {
+            if (sPoolTop) {
+				//trace("from pool " + sPoolTop);
+				return sPool[--sPoolTop].reset(parentTexture, region, ownsParent, frame, rotated);
+			} else {
+				return new SubTexture(parentTexture, region, ownsParent, frame, rotated);
+			}
+        }
+        
+        /** @private */
+        starling_internal static function toPool(texture:SubTexture):void
+        {
+            // reset any object-references, to make sure we don't prevent any garbage collection
+            texture.release();
+            sPool[sPoolTop++]=texture;
+        }
     }
 }

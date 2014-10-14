@@ -10,6 +10,7 @@
 
 package starling.textures
 {
+	import starling.core.starling_internal;
     import flash.display.Bitmap;
     import flash.display.BitmapData;
     import flash.display3D.Context3D;
@@ -105,11 +106,11 @@ package starling.textures
         /** @private */
         public function Texture()
         {
-            if (Capabilities.isDebugger && 
+            /*if (Capabilities.isDebugger && 
                 getQualifiedClassName(this) == "starling.textures::Texture")
             {
                 throw new AbstractClassError();
-            }
+            }*/
         }
         
         /** Disposes the underlying texture data. Note that not all textures need to be disposed: 
@@ -379,7 +380,8 @@ package starling.textures
             if (actualWidth - origWidth < 0.001 && actualHeight - origHeight < 0.001)
                 return concreteTexture;
             else
-                return new SubTexture(concreteTexture, new Rectangle(0, 0, width, height), true);
+				//return new SubTexture(concreteTexture, new Rectangle(0, 0, width, height), true);
+                return SubTexture.starling_internal::fromPool(concreteTexture, new Rectangle(0, 0, width, height), true);
         }
         
         /** Creates a texture that contains a region (in pixels) of another texture. The new
@@ -396,7 +398,8 @@ package starling.textures
         public static function fromTexture(texture:Texture, region:Rectangle=null,
                                            frame:Rectangle=null, rotated:Boolean=false):Texture
         {
-            return new SubTexture(texture, region, false, frame, rotated);
+            //return new SubTexture(texture, region, false, frame, rotated);
+			return SubTexture.starling_internal::fromPool(texture, region, false, frame, rotated);
         }
         
         /** Converts texture coordinates and vertex positions of raw vertex data into the format 
