@@ -10,6 +10,7 @@
 
 package starling.display
 {
+	import starling.core.starling_internal;
     import flash.display.Bitmap;
     import flash.geom.Matrix;
     import flash.geom.Point;
@@ -47,8 +48,8 @@ package starling.display
         /** Creates a quad with a texture mapped onto it. */
         public function Image(texture:Texture)
         {
-            if (texture)
-            {
+            //if (texture)
+            //{
                 var frame:Rectangle = texture.frame;
                 var width:Number  = frame ? frame.width  : texture.width;
                 var height:Number = frame ? frame.height : texture.height;
@@ -65,11 +66,11 @@ package starling.display
                 mSmoothing = TextureSmoothing.BILINEAR;
                 mVertexDataCache = new VertexData(4, pma);
                 mVertexDataCacheInvalid = true;
-            }
-            else
-            {
-                throw new ArgumentError("Texture cannot be null");
-            }
+            //}
+            //else
+            //{
+            //   throw new ArgumentError("Texture cannot be null");
+            //}
         }
         
         /** Creates an Image with a texture that is created from a bitmap object. */
@@ -188,6 +189,69 @@ package starling.display
         public override function render(support:RenderSupport, parentAlpha:Number):void
         {
             support.batchQuad(this, parentAlpha, mTexture, mSmoothing);
+        }
+		
+		// Image pooling...
+		
+		public function release():void {
+			//trace("RELEASE IMG " + name);
+			if (parent) this.removeFromParent();
+			pivotX = pivotY = x = y = 0.0;
+			scaleX = scaleY = 1.0;
+			mSmoothing = TextureSmoothing.BILINEAR;
+			mTexture = null;
+		}
+		
+		public function reset(texture:Texture):Image {
+			var frame:Rectangle = texture.frame;
+			var width:Number  = frame ? frame.width  : texture.width;
+			var height:Number = frame ? frame.height : texture.height;
+			var pma:Boolean = texture.premultipliedAlpha;
+			
+			//trace("Reset img " + frame+" " + width + " " + height);
+			mVertexData.setPosition(0, 0.0, 0.0);
+            mVertexData.setPosition(1, width, 0.0);
+            mVertexData.setPosition(2, 0.0, height);
+            mVertexData.setPosition(3, width, height);
+            mVertexData.setUniformColor(0xffffff);
+			
+			mVertexData.setTexCoords(0, 0.0, 0.0);
+			mVertexData.setTexCoords(1, 1.0, 0.0);
+			mVertexData.setTexCoords(2, 0.0, 1.0);
+			mVertexData.setTexCoords(3, 1.0, 1.0);
+			
+			mVertexData.setPremultipliedAlpha(pma, false);
+			
+			visible = true;
+			alpha = 1.0;
+			
+			mTexture = texture;
+			mSmoothing = TextureSmoothing.BILINEAR;
+
+			mVertexDataCacheInvalid = true;
+			return this;
+		}
+		
+		private static var sPool:Vector.<Image> = new Vector.<Image>(3000);
+		private static var sPoolTop:int = 0;
+		
+		/** @private */
+        starling_internal static function fromPool(texture:Texture):Image
+        {
+            if (sPoolTop) {
+				//trace("from pool " + sPoolTop);
+				return sPool[--sPoolTop].reset(texture);
+			} else {
+				return new Image(texture);
+			}
+        }
+        
+        /** @private */
+        starling_internal static function toPool(image:Image):void
+        {
+            // reset any object-references, to make sure we don't prevent any garbage collection
+            image.release();
+            sPool[sPoolTop++]=image;
         }
     }
 }
