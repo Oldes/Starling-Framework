@@ -224,6 +224,7 @@ package starling.display
 			
 			visible = true;
 			alpha = 1.0;
+			rotation = 0.0;
 			
 			mTexture = texture;
 			mSmoothing = TextureSmoothing.BILINEAR;
