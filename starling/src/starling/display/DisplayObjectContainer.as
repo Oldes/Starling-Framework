@@ -220,6 +220,7 @@ package starling.display
             if (index >= 0 && index < numChildren)
             {
                 var child:DisplayObject = mChildren[index];
+				/*OLDES: commenting this out as I don't use it.
                 if (mIsDispatching) {
                     child.dispatchEventWith(Event.REMOVED, true);
                     
@@ -234,6 +235,9 @@ package starling.display
                 } else {
 					mChildren.splice(index, 1); 
                 }
+				//instead use just:*/
+				mChildren.splice(index, 1); 
+				
                 child.setParent(null);
                 if (dispose) child.dispose();
                 
@@ -241,7 +245,8 @@ package starling.display
             }
             else
             {
-                throw new RangeError("Invalid child index");
+				return null;
+                //throw new RangeError("Invalid child index");
             }
         }
         
@@ -278,7 +283,8 @@ package starling.display
             if (index >= 0 && index < numChildren)
                 return mChildren[index];
             else
-                throw new RangeError("Invalid child index");
+				return null;
+                //throw new RangeError("Invalid child index");
         }
         
         /** Returns a child object with a certain name (non-recursively). */
