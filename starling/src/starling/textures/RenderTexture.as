@@ -220,6 +220,7 @@ package starling.textures
 			/*
             var context:Context3D = Starling.context;
             if (context == null) throw new MissingContextError();
+            if (!Starling.current.contextValid) return;
             
             // switch buffers
             if (isDoubleBuffered)
@@ -266,6 +267,7 @@ package starling.textures
         {
             var context:Context3D = Starling.context;
             if (context == null) throw new MissingContextError();
+            if (!Starling.current.contextValid) return;
             
             mSupport.renderTarget = mActiveTexture;
             mSupport.clear(rgb, alpha);
