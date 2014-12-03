@@ -488,7 +488,6 @@ package starling.core
             
             makeCurrent();
             updateViewPort();
-            updateNativeOverlay();
             mSupport.nextFrame();
             
             var scaleX:Number = mViewPort.width  / mStage.stageWidth;
@@ -660,7 +659,7 @@ package starling.core
         
         private function onEnterFrame(event:Event):void
         {
-            // On mobile, the native display list is only updated on stage3D draw calls. 
+            // On mobile, the native display list is only updated on stage3D draw calls.
             // Thus, we render even when Starling is paused.
             
             if (!mShareContext)
@@ -668,6 +667,8 @@ package starling.core
                 if (mStarted) nextFrame();
                 else if (mRendering) render();
             }
+
+            updateNativeOverlay();
         }
         
         private function onKey(event:KeyboardEvent):void
