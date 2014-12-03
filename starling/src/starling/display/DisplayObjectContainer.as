@@ -129,6 +129,7 @@ package starling.display
                 	else                      mChildren.splice(index, 0, child);
                 
                 	child.setParent(this);
+					/* OLDES: I don't use this kind of events, so commenting it out
                 	if (mIsDispatching) {
                     	child.dispatchEventWith(Event.ADDED, true);
                     
@@ -138,7 +139,7 @@ package starling.display
                         	if (container) container.broadcastEventWith(Event.ADDED_TO_STAGE);
                         	else           child.dispatchEventWith(Event.ADDED_TO_STAGE);
                     	}
-                	}
+                	}*/
                 }
                 
                 return child;
@@ -169,6 +170,7 @@ package starling.display
                 
                 
                 child.setParent(this);
+				/* OLDES: I don't use this kind of events, so commenting it out
                 if (mIsDispatching) {
                     child.dispatchEventWith(Event.ADDED, true);
                     if (prevChild) prevChild.dispatchEventWith(Event.REMOVED, true);
@@ -181,17 +183,18 @@ package starling.display
                         else           child.dispatchEventWith(Event.ADDED_TO_STAGE);
                     }
                 }
-                
+                */
                 
                 if (prevChild)
                 {
+					/* OLDES: I don't use this kind of events, so commenting it out
                     if (mIsDispatching) {
                         if (stage) {
                             container = prevChild as DisplayObjectContainer;
                             if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
                             else           prevChild.dispatchEventWith(Event.REMOVED_FROM_STAGE);
                         }
-                    }
+                    }*/
                     prevChild.setParent(null);
                     if (dispose) prevChild.dispose();
                 }
