@@ -298,8 +298,8 @@ package starling.core
                 }
                 else
                 {
-                    width  = Starling.current.viewPortWidth;
-                    height = Starling.current.viewPortHeight;
+                    width  = Starling.current.backBufferWidth;
+                    height = Starling.current.backBufferHeight;
                 }
                 
                 // convert to pixel coordinates (matrix transformation ends up in range [-1, 1])
