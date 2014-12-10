@@ -103,6 +103,7 @@ package starling.text
         private var mNativeFilters:Array;
         private var mRequiresRedraw:Boolean;
         private var mIsRenderedText:Boolean;
+		private var mIsHtmlText:Boolean;
         private var mTextBounds:Rectangle;
         private var mBatchable:Boolean;
         
@@ -259,8 +260,11 @@ package starling.text
             sNativeTextField.antiAliasType = AntiAliasType.ADVANCED;
             sNativeTextField.selectable = false;            
             sNativeTextField.multiline = true;            
-            sNativeTextField.wordWrap = true;            
-            sNativeTextField.text = mText;
+            sNativeTextField.wordWrap = true;         
+
+            if (mIsHtmlText) sNativeTextField.htmlText = mText;
+            else             sNativeTextField.text     = mText;
+               
             sNativeTextField.embedFonts = true;
             sNativeTextField.filters = mNativeFilters;
             
