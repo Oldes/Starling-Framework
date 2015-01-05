@@ -196,9 +196,6 @@ package starling.display
 		public function release():void {
 			//trace("RELEASE IMG " + name);
 			if (parent) this.removeFromParent();
-			pivotX = pivotY = x = y = 0.0;
-			scaleX = scaleY = 1.0;
-			mSmoothing = TextureSmoothing.BILINEAR;
 			mTexture = null;
 		}
 		
@@ -222,12 +219,7 @@ package starling.display
 			
 			mVertexData.setPremultipliedAlpha(pma, false);
 			
-			visible = true;
-			alpha = 1.0;
-			rotation = 0.0;
-			skewX =  skewY = 0;
-			scaleX = scaleY = 1;
-			blendMode = BlendMode.AUTO;
+			resetBase();
 			
 			mTexture = texture;
 			mSmoothing = TextureSmoothing.BILINEAR;
@@ -243,9 +235,10 @@ package starling.display
         starling_internal static function fromPool(texture:Texture):Image
         {
             if (sPoolTop) {
-				//trace("from pool " + sPoolTop);
+				//trace("image from pool " + sPoolTop);
 				return sPool[--sPoolTop].reset(texture);
 			} else {
+				//trace("new image... "+sPool.length);
 				return new Image(texture);
 			}
         }

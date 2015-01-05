@@ -166,12 +166,21 @@ package starling.display
             }*/
             
             mX = mY = mPivotX = mPivotY = mRotation = mSkewX = mSkewY = 0.0;
-            mScaleX = mScaleY = mAlpha = 1.0;            
+            mScaleX = mScaleY = mAlpha = 1.0;
             mVisible = mTouchable = true;
             mBlendMode = BlendMode.AUTO;
             mTransformationMatrix = new Matrix();
             mOrientationChanged = mUseHandCursor = false;
         }
+		
+		public function resetBase():void {
+			mX = mY = mPivotX = mPivotY = mRotation = mSkewX = mSkewY = 0.0;
+            mScaleX = mScaleY = mAlpha = 1.0;
+            mVisible = mTouchable = true;
+            mBlendMode = BlendMode.AUTO;
+            mTransformationMatrix.setTo(1, 0, 0, 1, 0, 0);
+            mOrientationChanged = mUseHandCursor = false;
+		}
         
         /** Disposes all resources of the display object. 
           * GPU buffers are released, event listeners are removed, filters are disposed. */
