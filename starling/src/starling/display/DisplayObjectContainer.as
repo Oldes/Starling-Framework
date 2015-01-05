@@ -239,8 +239,13 @@ package starling.display
 					mChildren.splice(index, 1); 
                 }
 				//instead use just:*/
-				mChildren.splice(index, 1); 
-				
+				// 'splice' creates a temporary object, so we avoid it if it's not necessary
+                if (index == numChildren) {
+					mChildren[index-1] = null;
+					mChildren.length--;
+				} else {
+					mChildren.splice(index, 1); 
+				}
                 child.setParent(null);
                 if (dispose) child.dispose();
                 
@@ -254,8 +259,8 @@ package starling.display
         }
         
         /** Removes a range of children from the container (endIndex included). 
-         *  If no arguments are given, all children will be removed. */
-        public function removeChildren(beginIndex:int=0, endIndex:int=-1, dispose:Boolean=false):void
+         *  If no arguments are given, all children will be removed and disposed. */
+        public function removeChildren(beginIndex:int=0, endIndex:int=-1, dispose:Boolean=true):void
         {
             if (endIndex < 0 || endIndex >= numChildren) 
                 endIndex = numChildren - 1;
@@ -263,21 +268,29 @@ package starling.display
             for (var i:int=beginIndex; i<=endIndex; ++i)
                 removeChildAt(beginIndex, dispose);
         }
+		/** Removes all children from the container and dispose them. */
+        public function removeAllChildren():void
+        {
+			var index:int = numChildren;
+            while (index-->0) {
+				var child:DisplayObject = mChildren[index];
+                child.setParent(null);
+                if (child is DisplayObjectContainer) {
+					DisplayObjectContainer(child).removeAllChildren();
+				}
+				child.dispose();
+			}
+			mChildren.length = 0;
+        }
 		/** Recursively removes from parent and disposes this object and all it's children
 		 *  Does not fire any 'removed' events! */
 		public function removeAndDispose():void {
-			var index:int = mChildren.length;
-			while (index-- > 0) {
-				var child:DisplayObject = mChildren[index];
-                child.setParent(null);
-				if (child is DisplayObjectContainer) {
-					DisplayObjectContainer(child).removeAndDispose();
-				} else {
-					child.dispose();
-				}
+			removeAllChildren();
+			if (parent) {
+				parent.removeChild(this, true);
+			} else {
+				dispose();
 			}
-			removeFromParent(true);
-			mChildren.length = 0
 		}
         
         /** Returns a child object at a certain index. */
