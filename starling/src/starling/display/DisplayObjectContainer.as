@@ -68,7 +68,6 @@ package starling.display
 
         private var mChildren:Vector.<DisplayObject>;
 		private var mTouchGroup:Boolean;
-		private var mIsDispatching:Boolean = true;
         
         /** Helper objects. */
         private static var sHelperMatrix:Matrix = new Matrix();
@@ -126,7 +125,7 @@ package starling.display
                 
                 	child.setParent(this);
 					/* OLDES: I don't use this kind of events, so commenting it out
-                	if (mIsDispatching) {
+                	if (dispatching) {
                     	child.dispatchEventWith(Event.ADDED, true);
                     
                     	if (stage)
@@ -167,7 +166,7 @@ package starling.display
                 
                 child.setParent(this);
 				/* OLDES: I don't use this kind of events, so commenting it out
-                if (mIsDispatching) {
+                if (dispatching) {
                     child.dispatchEventWith(Event.ADDED, true);
                     if (prevChild) prevChild.dispatchEventWith(Event.REMOVED, true);
                     
@@ -184,7 +183,7 @@ package starling.display
                 if (prevChild)
                 {
 					/* OLDES: I don't use this kind of events, so commenting it out
-                    if (mIsDispatching) {
+                    if (dispatching) {
                         if (stage) {
                             container = prevChild as DisplayObjectContainer;
                             if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
@@ -220,7 +219,7 @@ package starling.display
             {
                 var child:DisplayObject = mChildren[index];
 				/*OLDES: commenting this out as I don't use it.
-                if (mIsDispatching) {
+                if (dispatching) {
                     child.dispatchEventWith(Event.REMOVED, true);
                     
                     if (stage)
@@ -456,7 +455,7 @@ package starling.display
         /** Dispatches an event on all children (recursively). The event must not bubble. */
         public function broadcastEvent(event:Event):void
         {
-            if (!mIsDispatching) return;
+            if (!dispatching) return;
             if (event.bubbles)
                 throw new ArgumentError("Broadcast of bubbling events is prohibited");
             
@@ -479,7 +478,7 @@ package starling.display
          *  The method uses an internal pool of event objects to avoid allocations. */
         public function broadcastEventWith(type:String, data:Object=null):void
         {
-            if (!mIsDispatching) return;
+            if (!dispatching) return;
             var event:Event = Event.fromPool(type, false, data);
             broadcastEvent(event);
             Event.toPool(event);
@@ -562,14 +561,8 @@ package starling.display
             }
         }
 		
-		public function set dispatching(value:Boolean):void {
-			mIsDispatching = value;
-		}
-		public function get dispatching():Boolean {
-			return mIsDispatching;
-		}
 		public function setDispatching(value:Boolean):void {
-			mIsDispatching = value;
+			dispatching = value;
 			var child:DisplayObjectContainer;
 			var n:int = mChildren.length;
 			while (n-- > 0) {

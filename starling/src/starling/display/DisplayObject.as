@@ -151,6 +151,8 @@ package starling.display
         private var mFilter:FragmentFilter;
 		private var mNumId:uint;
         
+		private var mIsDispatching:Boolean;
+		
         /** Helper objects. */
         private static var sAncestors:Vector.<DisplayObject> = new <DisplayObject>[];
         private static var sHelperRect:Rectangle = new Rectangle();
@@ -192,7 +194,9 @@ package starling.display
 				mFilter.dispose();
 				mFilter = null;
 			}
-            removeEventListeners();
+            if (mIsDispatching) {
+				removeEventListeners();
+			}
         }
         
         /** Removes the object from its parent, if it has one, and optionally disposes it. */
@@ -431,7 +435,7 @@ package starling.display
                 addEventListener(Event.REMOVED_FROM_STAGE, removeEnterFrameListenerFromStage);
                 if (this.stage) addEnterFrameListenerToStage();
             }
-            
+            mIsDispatching = true;
             super.addEventListener(type, listener);
         }
         
@@ -750,7 +754,10 @@ package starling.display
          *  assign a different filter, the previous filter is NOT disposed automatically
          *  (since you might want to reuse it). */
         public function get filter():FragmentFilter { return mFilter; }
-        public function set filter(value:FragmentFilter):void { mFilter = value; }
+        public function set filter(value:FragmentFilter):void {
+			if (mFilter) mFilter.dispose();
+			mFilter = value;
+		}
         
         /** The display object container that contains this display object. */
         public function get parent():DisplayObjectContainer { return mParent; }
@@ -784,5 +791,12 @@ package starling.display
 		
 		public function get numId():int { return mNumId; }
 		public function set numId(value:int):void { mNumId = value; }
+		
+		[inline] public function set dispatching(value:Boolean):void {
+			mIsDispatching = value;
+		}
+		[inline] public function get dispatching():Boolean {
+			return mIsDispatching;
+		}
     }
 }

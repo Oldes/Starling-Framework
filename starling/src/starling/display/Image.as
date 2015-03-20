@@ -191,11 +191,24 @@ package starling.display
             support.batchQuad(this, parentAlpha, mTexture, mSmoothing);
         }
 		
+		override public function dispose():void
+        {
+			color = 0xFFFFFF;
+			filter = null;
+			//I don't want to call super.dispose as there should not be any events for removing in my case.
+			//I'm also using image pooling so I don't want to release texture here. 
+            //super.dispose();
+			if (dispatching) {
+				super.removeEventListeners();
+				dispatching = false;
+			}
+        }
+		
 		// Image pooling...
 		
 		public function release():void {
 			//trace("RELEASE IMG " + name);
-			if (parent) this.removeFromParent();
+			if (parent) this.removeFromParent(true);
 			mTexture = null;
 		}
 		
