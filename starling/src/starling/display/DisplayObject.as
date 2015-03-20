@@ -180,13 +180,18 @@ package starling.display
             mBlendMode = BlendMode.AUTO;
             mTransformationMatrix.setTo(1, 0, 0, 1, 0, 0);
             mOrientationChanged = mUseHandCursor = false;
+			if (mFilter) mFilter.dispose();
+			mFilter = null;
 		}
         
         /** Disposes all resources of the display object. 
           * GPU buffers are released, event listeners are removed, filters are disposed. */
         public function dispose():void
         {
-            if (mFilter) mFilter.dispose();
+            if (mFilter) {
+				mFilter.dispose();
+				mFilter = null;
+			}
             removeEventListeners();
         }
         
