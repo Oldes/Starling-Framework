@@ -102,7 +102,7 @@ package starling.events
         }
         
         /** Indicates if the target or one of its children is touched. */ 
-        public function isTouching(target:DisplayObject):Boolean
+        [inline] public function isTouching(target:DisplayObject):Boolean
         {
             return mBubbleChain.indexOf(target) != -1;
         }
