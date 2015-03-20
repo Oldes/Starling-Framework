@@ -93,20 +93,16 @@ package starling.display
         /** Disposes the resources of all children. */
         public override function dispose():void
         {
-			var index:int = mChildren.length;
-			while(index-- > 0){
-				mChildren[index].dispose();
-            }
+			removeAllChildren();
             super.dispose();
         }
         
         // child management
         
         /** Adds a child to the container. It will be at the frontmost position. */
-        public function addChild(child:DisplayObject):DisplayObject
+        [inline] public function addChild(child:DisplayObject):DisplayObject
         {
-            addChildAt(child, numChildren);
-            return child;
+            return addChildAt(child, numChildren);
         }
         
         /** Adds a child to the container at a certain index. */
@@ -275,9 +271,6 @@ package starling.display
             while (index-->0) {
 				var child:DisplayObject = mChildren[index];
                 child.setParent(null);
-                if (child is DisplayObjectContainer) {
-					DisplayObjectContainer(child).removeAllChildren();
-				}
 				child.dispose();
 			}
 			mChildren.length = 0;
