@@ -99,9 +99,9 @@ package starling.display
         // child management
         
         /** Adds a child to the container. It will be at the frontmost position. */
-        [inline] public function addChild(child:DisplayObject):DisplayObject
+        [inline] final public function addChild(child:DisplayObject):DisplayObject
         {
-            return addChildAt(child, numChildren);
+            return addChildAt(child, mChildren.length);
         }
         
         /** Adds a child to the container at a certain index. */
