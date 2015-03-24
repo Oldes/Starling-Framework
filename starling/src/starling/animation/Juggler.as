@@ -131,6 +131,19 @@ package starling.animation
                 mObjects[i] = null;
             }
         }
+		/** Removes all tweens from the juggler. (not dispatching any events) */
+        public function purgeAllTweens():void
+        {
+			var i:int = mObjects.length;
+			while( i --> 0){
+                var tween:Object = mObjects[i] as Object;
+				if (tween is Tween ){
+					//if (tween is Tween) Tween.starling_internal::toPool(tween as Tween);
+					mObjects[i] = null;
+				}
+            }
+			trace(mObjects);
+        }
         
         /** Delays the execution of a function until <code>delay</code> seconds have passed.
          *  This method provides a convenient alternative for creating and adding a DelayedCall
