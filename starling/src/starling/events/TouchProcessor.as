@@ -222,11 +222,13 @@ package starling.events
             mQueue.unshift(arguments);
             
             // multitouch simulation (only with mouse)
-            if (mCtrlDown && simulateMultitouch && touchID == 0) 
-            {
-                mTouchMarker.moveMarker(globalX, globalY, mShiftDown);
-                mQueue.unshift([1, phase, mTouchMarker.mockX, mTouchMarker.mockY]);
-            }
+			CONFIG::simulateMultitouch {
+				if (mCtrlDown && simulateMultitouch && touchID == 0) 
+				{
+					mTouchMarker.moveMarker(globalX, globalY, mShiftDown);
+					mQueue.unshift([1, phase, mTouchMarker.mockX, mTouchMarker.mockY]);
+				}
+			}
         }
         
         /** Enqueues an artificial touch that represents the mouse leaving the stage.
@@ -390,41 +392,43 @@ package starling.events
         
         private function onKey(event:KeyboardEvent):void
         {
-            if (event.keyCode == 17 || event.keyCode == 15) // ctrl or cmd key
-            {
-                var wasCtrlDown:Boolean = mCtrlDown;
-                mCtrlDown = event.type == KeyboardEvent.KEY_DOWN;
-                
-                if (simulateMultitouch && wasCtrlDown != mCtrlDown)
-                {
-                    mTouchMarker.visible = mCtrlDown;
-                    mTouchMarker.moveCenter(mStage.stageWidth/2, mStage.stageHeight/2);
-                    
-                    var mouseTouch:Touch = getCurrentTouch(0);
-                    var mockedTouch:Touch = getCurrentTouch(1);
-                    
-                    if (mouseTouch)
-                        mTouchMarker.moveMarker(mouseTouch.globalX, mouseTouch.globalY);
-                    
-                    if (wasCtrlDown && mockedTouch && mockedTouch.phase != TouchPhase.ENDED)
-                    {
-                        // end active touch ...
-                        mQueue.unshift([1, TouchPhase.ENDED, mockedTouch.globalX, mockedTouch.globalY]);
-                    }
-                    else if (mCtrlDown && mouseTouch)
-                    {
-                        // ... or start new one
-                        if (mouseTouch.phase == TouchPhase.HOVER || mouseTouch.phase == TouchPhase.ENDED)
-                            mQueue.unshift([1, TouchPhase.HOVER, mTouchMarker.mockX, mTouchMarker.mockY]);
-                        else
-                            mQueue.unshift([1, TouchPhase.BEGAN, mTouchMarker.mockX, mTouchMarker.mockY]);
-                    }
-                }
-            }
-            else if (event.keyCode == 16) // shift key
-            {
-                mShiftDown = event.type == KeyboardEvent.KEY_DOWN;
-            }
+			CONFIG::simulateMultitouch {
+				if (event.keyCode == 17 || event.keyCode == 15) // ctrl or cmd key
+				{
+					var wasCtrlDown:Boolean = mCtrlDown;
+					mCtrlDown = event.type == KeyboardEvent.KEY_DOWN;
+					
+					if (simulateMultitouch && wasCtrlDown != mCtrlDown)
+					{
+						mTouchMarker.visible = mCtrlDown;
+						mTouchMarker.moveCenter(mStage.stageWidth/2, mStage.stageHeight/2);
+						
+						var mouseTouch:Touch = getCurrentTouch(0);
+						var mockedTouch:Touch = getCurrentTouch(1);
+						
+						if (mouseTouch)
+							mTouchMarker.moveMarker(mouseTouch.globalX, mouseTouch.globalY);
+						
+						if (wasCtrlDown && mockedTouch && mockedTouch.phase != TouchPhase.ENDED)
+						{
+							// end active touch ...
+							mQueue.unshift([1, TouchPhase.ENDED, mockedTouch.globalX, mockedTouch.globalY]);
+						}
+						else if (mCtrlDown && mouseTouch)
+						{
+							// ... or start new one
+							if (mouseTouch.phase == TouchPhase.HOVER || mouseTouch.phase == TouchPhase.ENDED)
+								mQueue.unshift([1, TouchPhase.HOVER, mTouchMarker.mockX, mTouchMarker.mockY]);
+							else
+								mQueue.unshift([1, TouchPhase.BEGAN, mTouchMarker.mockX, mTouchMarker.mockY]);
+						}
+					}
+				}
+				else if (event.keyCode == 16) // shift key
+				{
+					mShiftDown = event.type == KeyboardEvent.KEY_DOWN;
+				}
+			}
         }
 
         // interruption handling
