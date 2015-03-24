@@ -180,16 +180,16 @@ package starling.display
         }
         
         /** @private */
-        public override function set x(value:Number):void
-        {
-            throw new IllegalOperationError("Cannot set x-coordinate of stage");
-        }
+    //    public override function set x(value:Number):void
+    //    {
+    //        throw new IllegalOperationError("Cannot set x-coordinate of stage");
+    //    }
         
         /** @private */
-        public override function set y(value:Number):void
-        {
-            throw new IllegalOperationError("Cannot set y-coordinate of stage");
-        }
+    //    public override function set y(value:Number):void
+    //    {
+    //        throw new IllegalOperationError("Cannot set y-coordinate of stage");
+    //    }
         
         /** @private */
         public override function set scaleX(value:Number):void

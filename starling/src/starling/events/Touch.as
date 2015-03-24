@@ -102,7 +102,7 @@ package starling.events
         }
         
         /** Indicates if the target or one of its children is touched. */ 
-        [inline] public function isTouching(target:DisplayObject):Boolean
+        [inline] final public function isTouching(target:DisplayObject):Boolean
         {
             return mBubbleChain.indexOf(target) != -1;
         }
@@ -156,18 +156,18 @@ package starling.events
         // properties
         
         /** The identifier of a touch. '0' for mouse events, an increasing number for touches. */
-        public function get id():int { return mID; }
+        [inline] final public function get id():int { return mID; }
         
         /** The previous x-position of the touch in stage coordinates. */
-        public function get previousGlobalX():Number { return mPreviousGlobalX; }
+        [inline] final public function get previousGlobalX():Number { return mPreviousGlobalX; }
         
         /** The previous y-position of the touch in stage coordinates. */
-        public function get previousGlobalY():Number { return mPreviousGlobalY; }
+        [inline] final public function get previousGlobalY():Number { return mPreviousGlobalY; }
 
         /** The x-position of the touch in stage coordinates. If you change this value,
          *  the previous one will be moved to "previousGlobalX". */
-        public function get globalX():Number { return mGlobalX; }
-        public function set globalX(value:Number):void
+        [inline] final public function get globalX():Number { return mGlobalX; }
+        [inline] final public function set globalX(value:Number):void
         {
             mPreviousGlobalX = mGlobalX != mGlobalX ? value : mGlobalX; // isNaN check
             mGlobalX = value;
@@ -175,8 +175,8 @@ package starling.events
 
         /** The y-position of the touch in stage coordinates. If you change this value,
          *  the previous one will be moved to "previousGlobalY". */
-        public function get globalY():Number { return mGlobalY; }
-        public function set globalY(value:Number):void
+        [inline] final public function get globalY():Number { return mGlobalY; }
+        [inline] final public function set globalY(value:Number):void
         {
             mPreviousGlobalY = mGlobalY != mGlobalY ? value : mGlobalY; // isNaN check
             mGlobalY = value;
@@ -184,16 +184,16 @@ package starling.events
         
         /** The number of taps the finger made in a short amount of time. Use this to detect 
          *  double-taps / double-clicks, etc. */ 
-        public function get tapCount():int { return mTapCount; }
-        public function set tapCount(value:int):void { mTapCount = value; }
+        [inline] final public function get tapCount():int { return mTapCount; }
+        [inline] final public function set tapCount(value:int):void { mTapCount = value; }
         
         /** The current phase the touch is in. @see TouchPhase */
-        public function get phase():String { return mPhase; }
-        public function set phase(value:String):void { mPhase = value; }
+        [inline] final public function get phase():String { return mPhase; }
+        [inline] final public function set phase(value:String):void { mPhase = value; }
         
         /** The display object at which the touch occurred. */
-        public function get target():DisplayObject { return mTarget; }
-        public function set target(value:DisplayObject):void
+        [inline] final public function get target():DisplayObject { return mTarget; }
+        [inline] final public function set target(value:DisplayObject):void
         {
             if (mTarget != value)
             {
@@ -203,23 +203,23 @@ package starling.events
         }
         
         /** The moment the touch occurred (in seconds since application start). */
-        public function get timestamp():Number { return mTimestamp; }
-        public function set timestamp(value:Number):void { mTimestamp = value; }
+        [inline] final public function get timestamp():Number { return mTimestamp; }
+        [inline] final public function set timestamp(value:Number):void { mTimestamp = value; }
         
         /** A value between 0.0 and 1.0 indicating force of the contact with the device. 
          *  If the device does not support detecting the pressure, the value is 1.0. */ 
-        public function get pressure():Number { return mPressure; }
-        public function set pressure(value:Number):void { mPressure = value; }
+        [inline] final public function get pressure():Number { return mPressure; }
+        [inline] final public function set pressure(value:Number):void { mPressure = value; }
         
         /** Width of the contact area. 
          *  If the device does not support detecting the pressure, the value is 1.0. */
-        public function get width():Number { return mWidth; }
-        public function set width(value:Number):void { mWidth = value; }
+        [inline] final public function get width():Number { return mWidth; }
+        [inline] final public function set width(value:Number):void { mWidth = value; }
         
         /** Height of the contact area. 
          *  If the device does not support detecting the pressure, the value is 1.0. */
-        public function get height():Number { return mHeight; }
-        public function set height(value:Number):void { mHeight = value; }
+        [inline] final public function get height():Number { return mHeight; }
+        [inline] final public function set height(value:Number):void { mHeight = value; }
 
         // internal methods
         

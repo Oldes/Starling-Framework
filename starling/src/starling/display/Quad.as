@@ -101,7 +101,7 @@ package starling.display
         }
         
         /** Returns the color of a vertex at a certain index. */
-        public function getVertexColor(vertexID:int):uint
+        [inline] final public function getVertexColor(vertexID:int):uint
         {
             return mVertexData.getColor(vertexID);
         }
@@ -117,7 +117,7 @@ package starling.display
         }
         
         /** Returns the alpha value of a vertex at a certain index. */
-        public function getVertexAlpha(vertexID:int):Number
+        [inline] final public function getVertexAlpha(vertexID:int):Number
         {
             return mVertexData.getAlpha(vertexID);
         }
@@ -133,7 +133,7 @@ package starling.display
         }
         
         /** Returns the color of the quad, or of vertex 0 if vertices have different colors. */
-        public function get color():uint 
+        [inline] final public function get color():uint 
         { 
             return mVertexData.getColor(0); 
         }
