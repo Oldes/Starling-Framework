@@ -376,9 +376,11 @@ package starling.display
         // internal methods
         
         /** @private */
-        internal function setParent(value:DisplayObjectContainer):void 
+        [inline] final //OLDES: without recursion test, maybe it could be just inlined
+		internal function setParent(value:DisplayObjectContainer):void 
         {
             // check for a recursion
+			/*OLDES: just be brave and don't test it, I've never got this error anyway so far...
             var ancestor:DisplayObject = value;
             while (ancestor != this && ancestor != null)
                 ancestor = ancestor.mParent;
@@ -387,6 +389,7 @@ package starling.display
                 throw new ArgumentError("An object cannot be added as a child to itself or one " +
                                         "of its children (or children's children, etc.)");
             else
+			*/
                 mParent = value; 
         }
         
