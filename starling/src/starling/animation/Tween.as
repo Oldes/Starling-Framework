@@ -115,10 +115,10 @@ package starling.animation
         public function animate(property:String, endValue:Number):void
         {
             if (mTarget == null) return; // tweening null just does nothing.
-                   
-            mProperties[mProperties.length] = property;
-            mStartValues[mStartValues.length] = Number.NaN;
-            mEndValues[mEndValues.length] = endValue;
+            var pos:int = mProperties.length;       
+            mProperties[pos] = property;
+            mStartValues[pos] = Number.NaN;
+            mEndValues[pos] = endValue;
         }
         
         /** Animates the 'scaleX' and 'scaleY' properties of an object simultaneously. */
