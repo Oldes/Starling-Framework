@@ -85,7 +85,6 @@ package starling.display
             {
                 throw new AbstractClassError();
             }*/
-            
             mChildren = new <DisplayObject>[];
         }
         
@@ -569,6 +568,17 @@ package starling.display
 				child = mChildren[n] as DisplayObjectContainer;
 				if (child != null) {
 					child.setDispatching(value);
+				}
+			}
+		}
+		public function setTouchable(value:Boolean):void {
+			touchable = value;
+			var child:DisplayObjectContainer;
+			var n:int = mChildren.length;
+			while (n-- > 0) {
+				child = mChildren[n] as DisplayObjectContainer;
+				if (child != null) {
+					child.setTouchable(value);
 				}
 			}
 		}
