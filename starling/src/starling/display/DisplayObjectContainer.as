@@ -315,9 +315,29 @@ package starling.display
         {
             var oldIndex:int = getChildIndex(child);
             if (oldIndex == index) return;
-            if (oldIndex == -1) throw new ArgumentError("Not a child of this container");
-            mChildren.splice(oldIndex, 1);
-            mChildren.splice(index, 0, child);
+            //if (oldIndex == -1) throw new ArgumentError("Not a child of this container");
+
+			//removing 2x splice call
+			//based on: https://github.com/Gamua/Starling-Framework/issues/700
+			var offset:int = 0;
+			var size:int = mChildren.length;
+
+			if ( index >= size ) index = size - 1;
+
+			sSortBuffer.length = size;
+			for (var i:int=0; i < size; ++i) {
+				switch(i) {
+					case index:
+						--offset;
+						sSortBuffer[i] = child;
+						break;
+					case oldIndex:
+						++offset;
+					default:
+						sSortBuffer[i] = mChildren[i + offset];
+				}
+			}
+			sSortBuffer.length = 0;
         }
         
         /** Swaps the indexes of two children. */
@@ -325,7 +345,7 @@ package starling.display
         {
             var index1:int = getChildIndex(child1);
             var index2:int = getChildIndex(child2);
-            if (index1 == -1 || index2 == -1) throw new ArgumentError("Not a child of this container");
+            //if (index1 == -1 || index2 == -1) throw new ArgumentError("Not a child of this container");
             swapChildrenAt(index1, index2);
         }
         
