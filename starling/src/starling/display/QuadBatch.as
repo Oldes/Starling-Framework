@@ -222,7 +222,7 @@ package starling.display
             
             var pma:Boolean = mVertexData.premultipliedAlpha;
             var context:Context3D = Starling.context;
-            var tinted:Boolean = mTinted || (parentAlpha != 1.0);
+            //var tinted:Boolean = mTinted || (parentAlpha != 1.0);
             
             sRenderAlpha[0] = sRenderAlpha[1] = sRenderAlpha[2] = pma ? parentAlpha : 1.0;
             sRenderAlpha[3] = parentAlpha;
@@ -230,14 +230,13 @@ package starling.display
             MatrixUtil.convertTo3D(mvpMatrix, sRenderMatrix);
             RenderSupport.setBlendFactors(pma, blendMode ? blendMode : this.blendMode);
             
-            context.setProgram(getProgram(tinted));
+            context.setProgram(getProgram(true));
             context.setProgramConstantsFromVector(Context3DProgramType.VERTEX, 0, sRenderAlpha, 1);
             context.setProgramConstantsFromMatrix(Context3DProgramType.VERTEX, 1, sRenderMatrix, true);
             context.setVertexBufferAt(0, mVertexBuffer, VertexData.POSITION_OFFSET, 
                                       Context3DVertexBufferFormat.FLOAT_2); 
             
-            if (mTexture == null || tinted)
-                context.setVertexBufferAt(1, mVertexBuffer, VertexData.COLOR_OFFSET, 
+            context.setVertexBufferAt(1, mVertexBuffer, VertexData.COLOR_OFFSET, 
                                           Context3DVertexBufferFormat.FLOAT_4);
             
             if (mTexture)
@@ -245,15 +244,12 @@ package starling.display
                 context.setTextureAt(0, mTexture.base);
                 context.setVertexBufferAt(2, mVertexBuffer, VertexData.TEXCOORD_OFFSET, 
                                           Context3DVertexBufferFormat.FLOAT_2);
-            }
-            
-            context.drawTriangles(mIndexBuffer, 0, mNumQuads * 2);
-            
-            if (mTexture)
-            {
-                context.setTextureAt(0, null);
+				context.drawTriangles(mIndexBuffer, 0, mNumQuads * 2);
+				context.setTextureAt(0, null);
                 context.setVertexBufferAt(2, null);
-            }
+            } else {
+				context.drawTriangles(mIndexBuffer, 0, mNumQuads * 2);
+			}
             
             context.setVertexBufferAt(1, null);
             context.setVertexBufferAt(0, null);
@@ -296,7 +292,7 @@ package starling.display
             {
                 this.blendMode = blendMode ? blendMode : quad.blendMode;
                 mTexture = texture;
-                mTinted = texture ? (quad.tinted || parentAlpha != 1.0) : false;
+                mTinted = texture ? true : false; // (quad.tinted || parentAlpha != 1.0) : false;
                 mSmoothing = smoothing;
                 mVertexData.setPremultipliedAlpha(quad.premultipliedAlpha);
             }
@@ -358,7 +354,7 @@ package starling.display
                 return mTexture.base != texture.base ||
                        mTexture.repeat != texture.repeat ||
                        mSmoothing != smoothing ||
-                       mTinted != (tinted || parentAlpha != 1.0) ||
+                      // mTinted != (tinted || parentAlpha != 1.0) ||
                        this.blendMode != blendMode;
             else return true;
         }
