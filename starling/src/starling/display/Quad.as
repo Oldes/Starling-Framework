@@ -53,7 +53,7 @@ package starling.display
             //if (width == 0.0 || height == 0.0)
             //    throw new ArgumentError("Invalid size: width and height must not be zero");
 
-            mTinted = color != 0xffffff;
+            mTinted = true; // color != 0xffffff;
             
             mVertexData = new VertexData(4, premultipliedAlpha);
             mVertexData.setPosition(0, 0.0, 0.0);
@@ -112,8 +112,8 @@ package starling.display
             mVertexData.setColor(vertexID, color);
             onVertexDataChanged();
             
-            if (color != 0xffffff) mTinted = true;
-            else mTinted = mVertexData.tinted;
+            //if (color != 0xffffff) mTinted = true;
+            //else mTinted = mVertexData.tinted;
         }
         
         /** Returns the alpha value of a vertex at a certain index. */
@@ -123,13 +123,13 @@ package starling.display
         }
         
         /** Sets the alpha value of a vertex at a certain index. */
-        public function setVertexAlpha(vertexID:int, alpha:Number):void
+        [inline] final public function setVertexAlpha(vertexID:int, alpha:Number):void
         {
             mVertexData.setAlpha(vertexID, alpha);
             onVertexDataChanged();
             
-            if (alpha != 1.0) mTinted = true;
-            else mTinted = mVertexData.tinted;
+            //if (alpha != 1.0) mTinted = true;
+            //else mTinted = mVertexData.tinted;
         }
         
         /** Returns the color of the quad, or of vertex 0 if vertices have different colors. */
@@ -139,13 +139,13 @@ package starling.display
         }
         
         /** Sets the colors of all vertices to a certain value. */
-        public function set color(value:uint):void 
+        [inline] public final function set color(value:uint):void 
         {
             mVertexData.setUniformColor(value);
             onVertexDataChanged();
             
-            if (value != 0xffffff || alpha != 1.0) mTinted = true;
-            else mTinted = mVertexData.tinted;
+            //if (value != 0xffffff || alpha != 1.0) mTinted = true;
+            //else mTinted = mVertexData.tinted;
         }
         
         /** @inheritDoc **/
@@ -153,8 +153,8 @@ package starling.display
         {
             super.alpha = value;
             
-            if (value < 1.0) mTinted = true;
-            else mTinted = mVertexData.tinted;
+            //if (value < 1.0) mTinted = true;
+            //else mTinted = mVertexData.tinted;
         }
         
         /** Copies the raw vertex data to a VertexData instance. */
@@ -178,10 +178,10 @@ package starling.display
         }
         
         /** Returns true if the quad (or any of its vertices) is non-white or non-opaque. */
-        public function get tinted():Boolean { return mTinted; }
+        [inline] public final function get tinted():Boolean { return true; }
         
         /** Indicates if the rgb values are stored premultiplied with the alpha value; this can
          *  affect the rendering. (Most developers don't have to care, though.) */
-        public function get premultipliedAlpha():Boolean { return mVertexData.premultipliedAlpha; }
+        [inline] public final function get premultipliedAlpha():Boolean { return mVertexData.premultipliedAlpha; }
     }
 }
