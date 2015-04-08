@@ -245,14 +245,11 @@ package starling.display
                 context.setTextureAt(0, mTexture.base);
                 context.setVertexBufferAt(2, mVertexBuffer, VertexData.TEXCOORD_OFFSET, 
                                           Context3DVertexBufferFormat.FLOAT_2);
-            }
-            
-            context.drawTriangles(mIndexBuffer, 0, mNumQuads * 2);
-            
-            if (mTexture)
-            {
-                context.setTextureAt(0, null);
+				context.drawTriangles(mIndexBuffer, 0, mNumQuads * 2);
+				context.setTextureAt(0, null);
                 context.setVertexBufferAt(2, null);
+            } else {
+                context.drawTriangles(mIndexBuffer, 0, mNumQuads * 2);
             }
             
             context.setVertexBufferAt(1, null);
