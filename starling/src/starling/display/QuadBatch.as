@@ -99,7 +99,7 @@ package starling.display
             mVertexData = new VertexData(0, true);
             mIndexData = new <uint>[];
             mNumQuads = 0;
-            mTinted = false;
+            mTinted = true;
             mSyncRequired = false;
             mBatchable = false;
             
@@ -292,7 +292,7 @@ package starling.display
             {
                 this.blendMode = blendMode ? blendMode : quad.blendMode;
                 mTexture = texture;
-                mTinted = texture ? true : false; // (quad.tinted || parentAlpha != 1.0) : false;
+                //mTinted = texture ? true : false; // (quad.tinted || parentAlpha != 1.0) : false;
                 mSmoothing = smoothing;
                 mVertexData.setPremultipliedAlpha(quad.premultipliedAlpha);
             }
@@ -314,7 +314,7 @@ package starling.display
             if (modelViewMatrix == null)
                 modelViewMatrix = quadBatch.transformationMatrix;
             
-            var tinted:Boolean = quadBatch.mTinted || parentAlpha != 1.0;
+            //var tinted:Boolean = quadBatch.mTinted || parentAlpha != 1.0;
             var alpha:Number = parentAlpha * quadBatch.alpha;
             var vertexID:int = mNumQuads * 4;
             var numQuads:int = quadBatch.numQuads;
@@ -324,7 +324,7 @@ package starling.display
             {
                 this.blendMode = blendMode ? blendMode : quadBatch.blendMode;
                 mTexture = quadBatch.mTexture;
-                mTinted = tinted;
+                //mTinted = tinted;
                 mSmoothing = quadBatch.mSmoothing;
                 mVertexData.setPremultipliedAlpha(quadBatch.mVertexData.premultipliedAlpha, false);
             }
@@ -341,9 +341,9 @@ package starling.display
         
         /** Indicates if specific quads can be added to the batch without causing a state change. 
          *  A state change occurs if the quad uses a different base texture, has a different 
-         *  'tinted', 'smoothing', 'repeat' or 'blendMode' setting, or if the batch is full
+         *  'smoothing', 'repeat' or 'blendMode' setting, or if the batch is full
          *  (one batch can contain up to 8192 quads). */
-        public function isStateChange(tinted:Boolean, parentAlpha:Number, texture:Texture, 
+        public function isStateChange(parentAlpha:Number, texture:Texture, 
                                       smoothing:String, blendMode:String, numQuads:int=1):Boolean
         {
             if (mNumQuads == 0) return false;
@@ -354,7 +354,6 @@ package starling.display
                 return mTexture.base != texture.base ||
                        mTexture.repeat != texture.repeat ||
                        mSmoothing != smoothing ||
-                      // mTinted != (tinted || parentAlpha != 1.0) ||
                        this.blendMode != blendMode;
             else return true;
         }
@@ -499,7 +498,7 @@ package starling.display
                 for (var j:int=i+1; j<quadBatches.length; )
                 {
                     batch2 = quadBatches[j];
-                    if (!batch1.isStateChange(batch2.tinted, 1.0, batch2.texture,
+                    if (!batch1.isStateChange(1.0, batch2.texture,
                                               batch2.smoothing, batch2.blendMode))
                     {
                         batch1.addQuadBatch(batch2);
@@ -580,7 +579,6 @@ package starling.display
             {
                 var texture:Texture;
                 var smoothing:String;
-                var tinted:Boolean;
                 var numQuads:int;
                 
                 if (quad)
@@ -588,20 +586,18 @@ package starling.display
                     var image:Image = quad as Image;
                     texture = image ? image.texture : null;
                     smoothing = image ? image.smoothing : null;
-                    tinted = quad.tinted;
                     numQuads = 1;
                 }
                 else
                 {
                     texture = batch.mTexture;
                     smoothing = batch.mSmoothing;
-                    tinted = batch.mTinted;
                     numQuads = batch.mNumQuads;
                 }
                 
                 quadBatch = quadBatches[quadBatchID];
                 
-                if (quadBatch.isStateChange(tinted, alpha*objectAlpha, texture, 
+                if (quadBatch.isStateChange(alpha*objectAlpha, texture, 
                                             smoothing, blendMode, numQuads))
                 {
                     quadBatchID++;
