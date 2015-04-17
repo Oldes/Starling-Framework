@@ -102,8 +102,7 @@ package starling.text
         private var mKerning:Boolean;
         private var mNativeFilters:Array;
         private var mRequiresRedraw:Boolean;
-        private var mIsRenderedText:Boolean;
-		private var mIsHtmlText:Boolean;
+        private var mIsHtmlText:Boolean;
         private var mTextBounds:Rectangle;
         private var mBatchable:Boolean;
         
@@ -163,9 +162,9 @@ package starling.text
         {
             if (mRequiresRedraw)
             {
-                if (mIsRenderedText) createRenderedContents();
-                else                 createComposedContents();
-                
+                if (getBitmapFont(mFontName)) createComposedContents();
+                else                          createRenderedContents();
+
                 updateBorder();
                 mRequiresRedraw = false;
             }
@@ -549,7 +548,6 @@ package starling.text
                 
                 mFontName = value;
                 mRequiresRedraw = true;
-                mIsRenderedText = getBitmapFont(value) == null;
             }
         }
         
@@ -713,9 +711,6 @@ package starling.text
         public function get nativeFilters():Array { return mNativeFilters; }
         public function set nativeFilters(value:Array) : void
         {
-            if (!mIsRenderedText)
-                throw(new Error("The TextField.nativeFilters property cannot be used on Bitmap fonts."));
-            
             mNativeFilters = value.concat();
             mRequiresRedraw = true;
         }
@@ -737,14 +732,14 @@ package starling.text
         public static function registerBitmapFont(bitmapFont:BitmapFont, name:String=null):String
         {
             if (name == null) name = bitmapFont.name;
-            bitmapFonts[name.toLowerCase()] = bitmapFont;
+            bitmapFonts[convertToLowerCase(name)] = bitmapFont;
             return name;
         }
         
         /** Unregisters the bitmap font and, optionally, disposes it. */
         public static function unregisterBitmapFont(name:String, dispose:Boolean=true):void
         {
-            name = name.toLowerCase();
+            name = convertToLowerCase(name);
             
             if (dispose && bitmapFonts[name] != undefined)
                 bitmapFonts[name].dispose();
@@ -756,7 +751,7 @@ package starling.text
          *  The name is not case sensitive. */
         public static function getBitmapFont(name:String):BitmapFont
         {
-            return bitmapFonts[name.toLowerCase()];
+            return bitmapFonts[convertToLowerCase(name)];
         }
         
         /** Stores the currently available bitmap fonts. Since a bitmap font will only work
@@ -772,6 +767,21 @@ package starling.text
             }
             
             return fonts;
+        }
+
+        // optimization for 'toLowerCase' calls
+
+        private static var sStringCache:Dictionary = new Dictionary();
+
+        private static function convertToLowerCase(string:String):String
+        {
+            var result:String = sStringCache[string];
+            if (result == null)
+            {
+                result = string.toLowerCase();
+                sStringCache[string] = result;
+            }
+            return result;
         }
     }
 }
