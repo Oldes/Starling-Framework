@@ -120,7 +120,7 @@ package starling.display
                 
                 	// 'splice' creates a temporary object, so we avoid it if it's not necessary
                 	if (index == numChildren) mChildren[numChildren]=child; //avoiding push
-                	else                      mChildren.splice(index, 0, child);
+                	else spliceChildren(index, 0, child);
                 
                 	child.setParent(this);
 					/* OLDES: I don't use this kind of events, so commenting it out
@@ -238,7 +238,7 @@ package starling.display
 					mChildren[index-1] = null;
 					mChildren.length--;
 				} else {
-					mChildren.splice(index, 1); 
+					spliceChildren(index, 1); 
 				}
                 child.setParent(null);
                 if (dispose) child.dispose();
@@ -319,25 +319,8 @@ package starling.display
 
 			//removing 2x splice call
 			//based on: https://github.com/Gamua/Starling-Framework/issues/700
-			var offset:int = 0;
-			var size:int = mChildren.length;
-
-			if ( index >= size ) index = size - 1;
-
-			sSortBuffer.length = size;
-			for (var i:int=0; i < size; ++i) {
-				switch(i) {
-					case index:
-						--offset;
-						sSortBuffer[i] = child;
-						break;
-					case oldIndex:
-						++offset;
-					default:
-						sSortBuffer[i] = mChildren[i + offset];
-				}
-			}
-			sSortBuffer.length = 0;
+			spliceChildren(oldIndex, 1);
+            spliceChildren(index, 0, child);
         }
         
         /** Swaps the indexes of two children. */
@@ -559,6 +542,50 @@ package starling.display
                 for(i = startIndex; i < endIndex; i++)
                     input[i] = buffer[int(i - startIndex)];
             }
+        }
+		
+		/** Custom implementation of 'Vector.splice'. The native method always create temporary
+         *  objects that have to be garbage collected. This implementation does not cause such
+         *  issues. */
+        private function spliceChildren(startIndex:int, deleteCount:uint=uint.MAX_VALUE,
+                                        insertee:DisplayObject=null):void
+        {
+            var vector:Vector.<DisplayObject> = mChildren;
+            var oldLength:uint  = vector.length;
+
+            if (startIndex < 0) startIndex += oldLength;
+            if (startIndex < 0) startIndex = 0; else if (startIndex > oldLength) startIndex = oldLength;
+            if (startIndex + deleteCount > oldLength) deleteCount = oldLength - startIndex;
+
+            var i:int;
+            var insertCount:int = insertee ? 1 : 0;
+            var deltaLength:int = insertCount - deleteCount;
+            var newLength:uint  = oldLength + deltaLength;
+            var shiftCount:int  = oldLength - startIndex - deleteCount;
+
+            if (deltaLength < 0)
+            {
+                i = startIndex + insertCount;
+                while (shiftCount)
+                {
+                    vector[i] = vector[int(i - deltaLength)];
+                    --shiftCount; ++i;
+                }
+                vector.length = newLength;
+            }
+            else if (deltaLength > 0)
+            {
+                i = 1;
+                while (shiftCount)
+                {
+                    vector[int(newLength - i)] = vector[int(oldLength - i)];
+                    --shiftCount; ++i;
+                }
+                vector.length = newLength;
+            }
+
+            if (insertee)
+                vector[startIndex] = insertee;
         }
         
         /** @private */
