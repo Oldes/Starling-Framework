@@ -168,7 +168,7 @@ package starling.display
             else if (touch.phase == TouchPhase.ENDED && mState == ButtonState.DOWN)
             {
                 state = ButtonState.UP;
-                dispatchEventWith(Event.TRIGGERED, true);
+                if (!touch.cancelled) dispatchEventWith(Event.TRIGGERED, true);
             }
         }
         
