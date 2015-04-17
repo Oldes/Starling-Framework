@@ -376,7 +376,7 @@ package starling.display
         // internal methods
         
         /** @private */
-        [inline] final //OLDES: without recursion test, maybe it could be just inlined
+        [Inline] final //OLDES: without recursion test, maybe it could be just inlined
 		internal function setParent(value:DisplayObjectContainer):void 
         {
             // check for a recursion
@@ -574,7 +574,7 @@ package starling.display
         
         /** Indicates if the mouse cursor should transform into a hand while it's over the sprite. 
          *  @default false */
-        [inline] final public function get useHandCursor():Boolean { return mUseHandCursor; }
+        [Inline] final public function get useHandCursor():Boolean { return mUseHandCursor; }
         public function set useHandCursor(value:Boolean):void
         {
             if (value == mUseHandCursor) return;
@@ -592,14 +592,14 @@ package starling.display
         }
         
         /** The bounds of the object relative to the local coordinates of the parent. */
-        [inline] final public function get bounds():Rectangle
+        [Inline] final public function get bounds():Rectangle
         {
             return getBounds(mParent);
         }
         
         /** The width of the object in pixels. */
-        [inline] final public function get width():Number { return getBounds(mParent, sHelperRect).width; }
-        //[inline] final //TODO: cannot use because: Stage, TextField
+        [Inline] final public function get width():Number { return getBounds(mParent, sHelperRect).width; }
+        //[Inline] final //TODO: cannot use because: Stage, TextField
 		public function set width(value:Number):void
         {
             // this method calls 'this.scaleX' instead of changing mScaleX directly.
@@ -611,8 +611,8 @@ package starling.display
         }
         
         /** The height of the object in pixels. */
-        [inline] final public function get height():Number { return getBounds(mParent, sHelperRect).height; }
-         //[inline] final //TODO: cannot use because: Stage, TextField
+        [Inline] final public function get height():Number { return getBounds(mParent, sHelperRect).height; }
+         //[Inline] final //TODO: cannot use because: Stage, TextField
 		public function set height(value:Number):void
         {
             scaleY = 1.0;
@@ -621,8 +621,8 @@ package starling.display
         }
         
         /** The x coordinate of the object relative to the local coordinates of the parent. */
-        [inline] final public function get x():Number { return mX; }
-        [inline] final public function set x(value:Number):void 
+        [Inline] final public function get x():Number { return mX; }
+        [Inline] final public function set x(value:Number):void 
         { 
             if (mX != value)
             {
@@ -632,8 +632,8 @@ package starling.display
         }
         
         /** The y coordinate of the object relative to the local coordinates of the parent. */
-        [inline] final public function get y():Number { return mY; }
-        [inline] final public function set y(value:Number):void 
+        [Inline] final public function get y():Number { return mY; }
+        [Inline] final public function set y(value:Number):void 
         {
             if (mY != value)
             {
@@ -643,8 +643,8 @@ package starling.display
         }
         
         /** The x coordinate of the object's origin in its own coordinate space (default: 0). */
-        [inline] final public function get pivotX():Number { return mPivotX; }
-        [inline] final public function set pivotX(value:Number):void 
+        [Inline] final public function get pivotX():Number { return mPivotX; }
+        [Inline] final public function set pivotX(value:Number):void 
         {
             if (mPivotX != value)
             {
@@ -654,8 +654,8 @@ package starling.display
         }
         
         /** The y coordinate of the object's origin in its own coordinate space (default: 0). */
-        [inline] final public function get pivotY():Number { return mPivotY; }
-        [inline] final public function set pivotY(value:Number):void 
+        [Inline] final public function get pivotY():Number { return mPivotY; }
+        [Inline] final public function set pivotY(value:Number):void 
         { 
             if (mPivotY != value)
             {
@@ -665,7 +665,7 @@ package starling.display
         }
         
         /** The horizontal scale factor. '1' means no scale, negative values flip the object. */
-        [inline] final public function get scaleX():Number { return mScaleX; }
+        [Inline] final public function get scaleX():Number { return mScaleX; }
         public function set scaleX(value:Number):void 
         { 
             if (mScaleX != value)
@@ -676,7 +676,7 @@ package starling.display
         }
         
         /** The vertical scale factor. '1' means no scale, negative values flip the object. */
-       [inline] final  public function get scaleY():Number { return mScaleY; }
+        [Inline] final  public function get scaleY():Number { return mScaleY; }
         public function set scaleY(value:Number):void 
         { 
             if (mScaleY != value)
@@ -687,7 +687,7 @@ package starling.display
         }
         
         /** The horizontal skew angle in radians. */
-        [inline] final public function get skewX():Number { return mSkewX; }
+        [Inline] final public function get skewX():Number { return mSkewX; }
         public function set skewX(value:Number):void 
         {
             value = normalizeAngle(value);
@@ -700,7 +700,7 @@ package starling.display
         }
         
         /** The vertical skew angle in radians. */
-        [inline] final public function get skewY():Number { return mSkewY; }
+        [Inline] final public function get skewY():Number { return mSkewY; }
         public function set skewY(value:Number):void 
         {
             value = normalizeAngle(value);
@@ -714,7 +714,7 @@ package starling.display
         
         /** The rotation of the object in radians. (In Starling, all angles are measured 
          *  in radians.) */
-        [inline] final public function get rotation():Number { return mRotation; }
+        [Inline] final public function get rotation():Number { return mRotation; }
         public function set rotation(value:Number):void 
         {
             value = normalizeAngle(value);
@@ -727,30 +727,30 @@ package starling.display
         }
         
         /** The opacity of the object. 0 = transparent, 1 = opaque. */
-        [inline] final public function get alpha():Number { return mAlpha; }
+        [Inline] final public function get alpha():Number { return mAlpha; }
         public function set alpha(value:Number):void 
         { 
             mAlpha = value < 0.0 ? 0.0 : (value > 1.0 ? 1.0 : value); 
         }
         
         /** The visibility of the object. An invisible object will be untouchable. */
-        [inline] final public function get visible():Boolean { return mVisible; }
+        [Inline] final public function get visible():Boolean { return mVisible; }
         public function set visible(value:Boolean):void { mVisible = value; }
         
         /** Indicates if this object (and its children) will receive touch events. */
-        [inline] final public function get touchable():Boolean { return mTouchable; }
+        [Inline] final public function get touchable():Boolean { return mTouchable; }
         public function set touchable(value:Boolean):void { mTouchable = value; }
         
         /** The blend mode determines how the object is blended with the objects underneath. 
          *   @default auto
          *   @see starling.display.BlendMode */ 
-        [inline] final public function get blendMode():String { return mBlendMode; }
+        [Inline] final public function get blendMode():String { return mBlendMode; }
         public function set blendMode(value:String):void { mBlendMode = value; }
         
         /** The name of the display object (default: null). Used by 'getChildByName()' of 
          *  display object containers. */
-        [inline] final public function get name():String { return mName; }
-        [inline] final public function set name(value:String):void { mName = value; }
+        [Inline] final public function get name():String { return mName; }
+        [Inline] final public function set name(value:String):void { mName = value; }
         
         /** The filter that is attached to the display object. The starling.filters
          *  package contains several classes that define specific filters you can use. 
@@ -758,14 +758,14 @@ package starling.display
          *  performance reasons). Furthermore, when you set this property to 'null' or
          *  assign a different filter, the previous filter is NOT disposed automatically
          *  (since you might want to reuse it). */
-        [inline] final public function get filter():FragmentFilter { return mFilter; }
+        [Inline] final public function get filter():FragmentFilter { return mFilter; }
         public function set filter(value:FragmentFilter):void {
 			if (mFilter) mFilter.dispose();
 			mFilter = value;
 		}
         
         /** The display object container that contains this display object. */
-        [inline] final public function get parent():DisplayObjectContainer { return mParent; }
+        [Inline] final public function get parent():DisplayObjectContainer { return mParent; }
         
         /** The topmost object in the display tree the object is part of. */
         public function get base():DisplayObject
@@ -792,15 +792,15 @@ package starling.display
         
         /** The stage the display object is connected to, or null if it is not connected 
          *  to the stage. */
-        [inline] final public function get stage():Stage { return this.base as Stage; }
+        [Inline] final public function get stage():Stage { return this.base as Stage; }
 		
-		[inline] final public function get numId():int { return mNumId; }
-		[inline] final public function set numId(value:int):void { mNumId = value; }
+		[Inline] final public function get numId():int { return mNumId; }
+		[Inline] final public function set numId(value:int):void { mNumId = value; }
 		
-		[inline] final public function set dispatching(value:Boolean):void {
+		[Inline] final public function set dispatching(value:Boolean):void {
 			mIsDispatching = value;
 		}
-		[inline] final public function get dispatching():Boolean {
+		[Inline] final public function get dispatching():Boolean {
 			return mIsDispatching;
 		}
     }

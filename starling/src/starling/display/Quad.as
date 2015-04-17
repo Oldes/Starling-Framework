@@ -101,7 +101,7 @@ package starling.display
         }
         
         /** Returns the color of a vertex at a certain index. */
-        [inline] final public function getVertexColor(vertexID:int):uint
+        [Inline] final public function getVertexColor(vertexID:int):uint
         {
             return mVertexData.getColor(vertexID);
         }
@@ -117,13 +117,13 @@ package starling.display
         }
         
         /** Returns the alpha value of a vertex at a certain index. */
-        [inline] final public function getVertexAlpha(vertexID:int):Number
+        [Inline] final public function getVertexAlpha(vertexID:int):Number
         {
             return mVertexData.getAlpha(vertexID);
         }
         
         /** Sets the alpha value of a vertex at a certain index. */
-        public function setVertexAlpha(vertexID:int, alpha:Number):void
+        [Inline] final public function setVertexAlpha(vertexID:int, alpha:Number):void
         {
             mVertexData.setAlpha(vertexID, alpha);
             onVertexDataChanged();
@@ -133,13 +133,13 @@ package starling.display
         }
         
         /** Returns the color of the quad, or of vertex 0 if vertices have different colors. */
-        [inline] final public function get color():uint 
+        [Inline] final public function get color():uint 
         { 
             return mVertexData.getColor(0); 
         }
         
         /** Sets the colors of all vertices to a certain value. */
-        public function set color(value:uint):void 
+        [Inline] public final function set color(value:uint):void 
         {
             mVertexData.setUniformColor(value);
             onVertexDataChanged();
@@ -178,10 +178,10 @@ package starling.display
         }
         
         /** Returns true if the quad (or any of its vertices) is non-white or non-opaque. */
-        public function get tinted():Boolean { return mTinted; }
+        [Inline] public final public function get tinted():Boolean { return mTinted; }
         
         /** Indicates if the rgb values are stored premultiplied with the alpha value; this can
          *  affect the rendering. (Most developers don't have to care, though.) */
-        public function get premultipliedAlpha():Boolean { return mVertexData.premultipliedAlpha; }
+        [Inline] public final function get premultipliedAlpha():Boolean { return mVertexData.premultipliedAlpha; }
     }
 }

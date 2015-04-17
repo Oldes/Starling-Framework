@@ -98,7 +98,7 @@ package starling.display
         // child management
         
         /** Adds a child to the container. It will be at the frontmost position. */
-        [inline] final public function addChild(child:DisplayObject):DisplayObject
+        [Inline] final public function addChild(child:DisplayObject):DisplayObject
         {
             return addChildAt(child, mChildren.length);
         }
@@ -504,14 +504,14 @@ package starling.display
         }
         
         /** The number of children of this container. */
-        [inline] final public function get numChildren():int { return mChildren.length; }
+        [Inline] final public function get numChildren():int { return mChildren.length; }
         
         /** If a container is a 'touchGroup', it will act as a single touchable object.
          *  Touch events will have the container as target, not the touched child.
          *  (Similar to 'mouseChildren' in the classic display list, but with inverted logic.)
          *  @default false */
-		[inline] final public function get touchGroup():Boolean { return mTouchGroup; }
-        [inline] final public function set touchGroup(value:Boolean):void { mTouchGroup = value; }
+		[Inline] final public function get touchGroup():Boolean { return mTouchGroup; }
+        [Inline] final public function set touchGroup(value:Boolean):void { mTouchGroup = value; }
 
         // helpers
         
