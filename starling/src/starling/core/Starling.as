@@ -38,6 +38,7 @@ package starling.core
     import flash.utils.Dictionary;
     import flash.utils.getTimer;
     import flash.utils.setTimeout;
+	import starling.utils.memory.Memory;
     
     import starling.animation.Juggler;
     import starling.display.DisplayObject;
@@ -203,7 +204,7 @@ package starling.core
         private var mStarted:Boolean;
         private var mRendering:Boolean;
         private var mSupportHighResolutions:Boolean;
-        
+        private var mHeapMemory:Memory;
         private var mViewPort:Rectangle;
         private var mPreviousViewPort:Rectangle;
         private var mClippedViewPort:Rectangle;
@@ -249,6 +250,7 @@ package starling.core
             if (rootClass == null) throw new ArgumentError("Root class must not be null");
             if (viewPort == null) viewPort = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
             if (stage3D == null) stage3D = stage.stage3Ds[0];
+			if (mHeapMemory == null) mHeapMemory = new Memory();
 
             SystemUtil.initialize();
             sAll.push(this);
@@ -857,6 +859,9 @@ package starling.core
         
         /** The default juggler of this instance. Will be advanced once per frame. */
         public function get juggler():Juggler { return mJuggler; }
+		
+		/** AplicationDomain memory manager */
+        public function get memory():Memory { return mHeapMemory; }
         
         /** The render context of this instance. */
         public function get context():Context3D { return mContext; }
@@ -1065,6 +1070,9 @@ package starling.core
         
         /** The default juggler of the currently active Starling instance. */
         public static function get juggler():Juggler { return sCurrent ? sCurrent.juggler : null; }
+		
+		/** AplicationDomain memory manager */
+		public static function get memory():Memory { return sCurrent ? sCurrent.mHeapMemory : null; }
         
         /** The contentScaleFactor of the currently active Starling instance. */
         public static function get contentScaleFactor():Number 
