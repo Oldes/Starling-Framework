@@ -162,6 +162,11 @@ package starling.filters
             disposePassTextures();
             disposeCache();
         }
+		/** Used to release filter into pool where possible */
+		public function release():void
+		{
+			dispose(); //by default it's same like dispose
+		}
         
         private function onContextCreated(event:Object):void
         {

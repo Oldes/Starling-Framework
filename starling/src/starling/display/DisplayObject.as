@@ -182,8 +182,10 @@ package starling.display
             mBlendMode = BlendMode.AUTO;
             mTransformationMatrix.setTo(1, 0, 0, 1, 0, 0);
             mOrientationChanged = mUseHandCursor = false;
-			if (mFilter) mFilter.dispose();
-			mFilter = null;
+			if (mFilter) {
+				mFilter.release();
+				mFilter = null;
+			}
 		}
         
         /** Disposes all resources of the display object. 
@@ -191,7 +193,7 @@ package starling.display
         public function dispose():void
         {
             if (mFilter) {
-				mFilter.dispose();
+				mFilter.release();
 				mFilter = null;
 			}
             if (mIsDispatching) {
@@ -759,8 +761,8 @@ package starling.display
          *  assign a different filter, the previous filter is NOT disposed automatically
          *  (since you might want to reuse it). */
         [Inline] final public function get filter():FragmentFilter { return mFilter; }
-        public function set filter(value:FragmentFilter):void {
-			if (mFilter) mFilter.dispose();
+        [Inline] final public function set filter(value:FragmentFilter):void {
+			if (mFilter) mFilter.release();
 			mFilter = value;
 		}
         

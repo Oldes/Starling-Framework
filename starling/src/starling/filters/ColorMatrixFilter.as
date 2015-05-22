@@ -200,9 +200,9 @@ package starling.filters
         // matrix manipulation
         
         /** Changes the filter matrix back to the identity matrix. */
-        public function reset():ColorMatrixFilter
+        public function reset(newMatrix:Vector.<Number>=null):ColorMatrixFilter
         {
-            matrix = null;
+            matrix = newMatrix;
             return this;
         }
         
@@ -287,8 +287,8 @@ package starling.filters
         // properties
         
         /** A vector of 20 items arranged as a 4x5 matrix. */
-        public function get matrix():Vector.<Number> { return mUserMatrix; }
-        public function set matrix(value:Vector.<Number>):void
+        [Inline] final public function get matrix():Vector.<Number> { return mUserMatrix; }
+        [Inline] final public function set matrix(value:Vector.<Number>):void
         {
             if (value && value.length != 20) 
                 throw new ArgumentError("Invalid matrix length: must be 20");
@@ -304,6 +304,32 @@ package starling.filters
             }
             
             updateShaderMatrix();
+        }
+		
+		
+		// ColorMatrixFilter pooling...
+		override public function release():void {
+			ColorMatrixFilter.toPool(this);
+		}
+		
+		private static var sPool:Vector.<ColorMatrixFilter> = new Vector.<ColorMatrixFilter>(10);
+		private static var sPoolTop:int = 0;
+		
+        public static function fromPool(matrix:Vector.<Number>=null):ColorMatrixFilter
+        {
+            if (sPoolTop) {
+				//trace("from pool " + sPoolTop);
+				return sPool[--sPoolTop].reset(matrix);
+			} else {
+				return new ColorMatrixFilter(matrix);
+			}
+        }
+        
+		[Inline]
+        public static function toPool(filter:ColorMatrixFilter):void
+        {
+            sPool[sPoolTop++] = filter;
+			//trace("to pool " + sPoolTop);
         }
     }
 }

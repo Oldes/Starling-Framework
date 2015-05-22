@@ -222,10 +222,10 @@ package starling.display
         }
         
         /** @private */
-        public override function set filter(value:FragmentFilter):void
-        {
-            throw new IllegalOperationError("Cannot add filter to stage. Add it to 'root' instead!");
-        }
+    //    public override function set filter(value:FragmentFilter):void
+    //    {
+    //        throw new IllegalOperationError("Cannot add filter to stage. Add it to 'root' instead!");
+    //    }
         
         /** The background color of the stage. */
         public function get color():uint { return mColor; }
