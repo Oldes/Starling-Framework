@@ -207,6 +207,12 @@ package starling.display
             if (mParent) mParent.removeChild(this, dispose);
             else if (dispose) this.dispose();
         }
+		/** Removes the object from its parent, if it has one, and optionally disposes it. No shift version! */
+		public function _removeFromParent(dispose:Boolean=false):void
+		{
+			if (mParent) mParent._removeChild(this, dispose);
+			else if (dispose) this.dispose();
+		}
         
         /** Creates a matrix that represents the transformation from the local coordinate system 
          *  to another. If you pass a 'resultMatrix', the result will be stored in this matrix

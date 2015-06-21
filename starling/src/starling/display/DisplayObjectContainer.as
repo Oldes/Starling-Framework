@@ -214,35 +214,37 @@ package starling.display
          *  requested, the child will be disposed right away. */
         public function removeChildAt(index:int, dispose:Boolean=false):DisplayObject
         {
+			var numChildren:int = mChildren.length;
             if (index >= 0 && index < numChildren)
             {
                 var child:DisplayObject = mChildren[index];
-				/*OLDES: commenting this out as I don't use it.
-                if (dispatching) {
-                    child.dispatchEventWith(Event.REMOVED, true);
-                    
-                    if (stage)
-                    {
-                        var container:DisplayObjectContainer = child as DisplayObjectContainer;
-                        if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
-                        else           child.dispatchEventWith(Event.REMOVED_FROM_STAGE);
-                    }
-					index = mChildren.indexOf(child); // index might have changed by event handler
-					if (index >= 0) mChildren.splice(index, 1); 
-                } else {
-					mChildren.splice(index, 1); 
-                }
-				//instead use just:*/
-				// 'splice' creates a temporary object, so we avoid it if it's not necessary
-                if (index == numChildren) {
-					mChildren[index-1] = null;
-					mChildren.length--;
-				} else {
-					spliceChildren(index, 1); 
+				if (child) {
+					/*OLDES: commenting this out as I don't use it.
+	                if (dispatching) {
+	                    child.dispatchEventWith(Event.REMOVED, true);
+	                    
+	                    if (stage)
+	                    {
+	                        var container:DisplayObjectContainer = child as DisplayObjectContainer;
+	                        if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
+	                        else           child.dispatchEventWith(Event.REMOVED_FROM_STAGE);
+	                    }
+						index = mChildren.indexOf(child); // index might have changed by event handler
+						if (index >= 0) mChildren.splice(index, 1); 
+	                } else {
+						mChildren.splice(index, 1); 
+	                }
+					//instead use just:*/
+					// 'splice' creates a temporary object, so we avoid it if it's not necessary
+	                if (index == numChildren) {
+						mChildren[index-1] = null;
+						mChildren.length--;
+					} else {
+						spliceChildren(index, 1); 
+					}
+	                child.setParent(null);
+	                if (dispose) child.dispose();
 				}
-                child.setParent(null);
-                if (dispose) child.dispose();
-                
                 return child;
             }
             else
@@ -258,18 +260,20 @@ package starling.display
         {
             if (endIndex < 0 || endIndex >= numChildren) 
                 endIndex = numChildren - 1;
-            
-            for (var i:int=beginIndex; i<=endIndex; ++i)
-                removeChildAt(beginIndex, dispose);
+            for (var i:int=endIndex; i>=beginIndex; i--)
+                removeChildAt(i, dispose);
         }
 		/** Removes all children from the container and dispose them. */
         public function removeAllChildren():void
         {
-			var index:int = numChildren;
+			//trace("removeAllChildren");
+			var index:int = mChildren.length; //I'm not using numChildren, because of possible preallocated size, where child may be null.
             while (index-->0) {
 				var child:DisplayObject = mChildren[index];
-                child.setParent(null);
-				child.dispose();
+				if(child) {
+                	child.setParent(null);
+					child.dispose();
+				}
 			}
 			mChildren.length = 0;
         }
@@ -287,20 +291,17 @@ package starling.display
         /** Returns a child object at a certain index. */
         public function getChildAt(index:int):DisplayObject
         {
-            if (index >= 0 && index < numChildren)
-                return mChildren[index];
-            else
-				return null;
-                //throw new RangeError("Invalid child index");
+            return mChildren[index];
         }
         
         /** Returns a child object with a certain name (non-recursively). */
         public function getChildByName(name:String):DisplayObject
         {
             var numChildren:int = mChildren.length;
-            for (var i:int=0; i<numChildren; ++i)
-                if (mChildren[i].name == name) return mChildren[i];
-
+            for (var i:int=0; i<numChildren; ++i) {
+				var child:DisplayObject = mChildren[i];
+				if (child && child.name == name) return child;
+			}
             return null;
         }
         
@@ -387,11 +388,13 @@ package starling.display
                 
                 for (var i:int=0; i<numChildren; ++i)
                 {
-                    mChildren[i].getBounds(targetSpace, resultRect);
-                    minX = minX < resultRect.x ? minX : resultRect.x;
-                    maxX = maxX > resultRect.right ? maxX : resultRect.right;
-                    minY = minY < resultRect.y ? minY : resultRect.y;
-                    maxY = maxY > resultRect.bottom ? maxY : resultRect.bottom;
+					if (mChildren[i]) {
+	                    mChildren[i].getBounds(targetSpace, resultRect);
+	                    minX = minX < resultRect.x ? minX : resultRect.x;
+	                    maxX = maxX > resultRect.right ? maxX : resultRect.right;
+	                    minY = minY < resultRect.y ? minY : resultRect.y;
+	                    maxY = maxY > resultRect.bottom ? maxY : resultRect.bottom;
+					}
                 }
                 
                 resultRect.setTo(minX, minY, maxX - minX, maxY - minY);
@@ -414,13 +417,15 @@ package starling.display
             for (var i:int=numChildren-1; i>=0; --i) // front to back!
             {
                 var child:DisplayObject = mChildren[i];
-                getTransformationMatrix(child, sHelperMatrix);
-                
-                MatrixUtil.transformCoords(sHelperMatrix, localX, localY, sHelperPoint);
-                target = child.hitTest(sHelperPoint, forTouch);
-                
-                if (target)
-                    return forTouch && mTouchGroup ? this : target;
+				if (child) {
+	                getTransformationMatrix(child, sHelperMatrix);
+	                
+	                MatrixUtil.transformCoords(sHelperMatrix, localX, localY, sHelperPoint);
+	                target = child.hitTest(sHelperPoint, forTouch);
+	                
+	                if (target)
+	                    return forTouch && mTouchGroup ? this : target;
+				}
             }
             
             return null;
@@ -432,12 +437,11 @@ package starling.display
             var alpha:Number = parentAlpha * this.alpha;
             var numChildren:int = mChildren.length;
             var blendMode:String = support.blendMode;
-            
             for (var i:int=0; i<numChildren; ++i)
             {
                 var child:DisplayObject = mChildren[i];
                 
-                if (child.hasVisibleArea)
+                if (child && child.hasVisibleArea)
                 {
                     var filter:FragmentFilter = child.filter;
 
@@ -487,7 +491,12 @@ package starling.display
         }
         
         /** The number of children of this container. */
-        [Inline] final public function get numChildren():int { return mChildren.length; }
+        [Inline] final public function get numChildren():int {
+			var i:int = mChildren.length;
+			var num:int = 0;
+			while (i-->0) if(mChildren[i]) num++;
+			return num;
+		}
         
         /** If a container is a 'touchGroup', it will act as a single touchable object.
          *  Touch events will have the container as target, not the touched child.
@@ -550,6 +559,7 @@ package starling.display
         private function spliceChildren(startIndex:int, deleteCount:uint=uint.MAX_VALUE,
                                         insertee:DisplayObject=null):void
         {
+			//trace("spliceChildren "+ deleteCount);
             var vector:Vector.<DisplayObject> = mChildren;
             var oldLength:uint  = vector.length;
 
@@ -594,7 +604,7 @@ package starling.display
         {
             var container:DisplayObjectContainer = object as DisplayObjectContainer;
             
-            if (object.hasEventListener(eventType))
+            if (object && object.hasEventListener(eventType))
                 listeners[listeners.length] = object; // avoiding 'push'                
             
             if (container)
@@ -602,8 +612,11 @@ package starling.display
                 var children:Vector.<DisplayObject> = container.mChildren;
                 var numChildren:int = children.length;
                 
-                for (var i:int=0; i<numChildren; ++i)
-                    getChildEventListeners(children[i], eventType, listeners);
+                for (var i:int=0; i<numChildren; ++i) {
+					var child:DisplayObject = children[i];
+					if (child) getChildEventListeners(child, eventType, listeners);
+				}
+                    
             }
         }
 		
@@ -613,7 +626,7 @@ package starling.display
 			var n:int = mChildren.length;
 			while (n-- > 0) {
 				child = mChildren[n] as DisplayObjectContainer;
-				if (child != null) {
+				if (child) {
 					child.setDispatching(value);
 				}
 			}
@@ -624,10 +637,97 @@ package starling.display
 			var n:int = mChildren.length;
 			while (n-- > 0) {
 				child = mChildren[n] as DisplayObjectContainer;
-				if (child != null) {
+				if (child) {
 					child.setTouchable(value);
 				}
 			}
+		}
+		
+		/* Follows child management functions, which are not shifting childs on add or remove.
+		 * By default, when inserting in the middle, the content must be moved to prepare space.
+		 * To avoid it, I use preallocated mChildren container with nulls, so I can add to precise depth.
+		 * Remove using this functions just sets the content to null after dispose.
+		 * NOTE: This functions should not be used by hand written code - they are for pregenerated animation
+		 * content management only. Mixing original functions with these may have unpredictable results! */
+		
+		[Inline] final public function _allocateDepth(length:uint):void {
+			if (mChildren.length < length) {
+				trace("alloc: "+length);
+				mChildren.length = length;
+			}
+		}
+		
+		/** Adds a child to the container at a certain index without shifting. */
+		public function _addChildAt(child:DisplayObject, index:int):DisplayObject
+		{
+			if (child.parent == this)
+			{
+				mChildren[index]=child;
+			}
+			else
+			{
+				child.removeFromParent();
+				
+				mChildren[index]=child;
+				
+				child.setParent(this);
+			}
+			
+			return child;
+		}
+		
+		/** Removes a child from the container. If the object is not a child, nothing happens. 
+		 *  If requested, the child will be disposed right away. */
+		public function _removeChild(child:DisplayObject, dispose:Boolean=false):DisplayObject
+		{
+			var childIndex:int = getChildIndex(child);
+			if (childIndex != -1) _removeChildAt(childIndex, dispose);
+			return child;
+		}
+		
+		/** Removes a child at a certain index without shifting children above. */
+		public function _removeChildAt(index:int, dispose:Boolean=false):DisplayObject
+		{
+			var child:DisplayObject = mChildren[index];
+			mChildren[index] = null;
+			if (child) {
+				child.setParent(null);
+				if (dispose) child.dispose();
+			}
+			return child;
+		}
+		
+		/** Removes all children from the container and dispose them. */
+		public function _removeAllChildren():void
+		{
+			var index:int = mChildren.length; //I'm not using numChildren, because of possible preallocated size, where child may be null.
+			while (index-->0) {
+				var child:DisplayObject = mChildren[index];
+				if(child) {
+					child.setParent(null);
+					child.dispose();
+					mChildren[index] = null;
+				}
+			}
+		}
+		
+		/** Disposes child at specified index. It's part of more efficient children removing process.
+		 * This function is supposed to be used with 'changeChildsDepth' and 'cropChildren'.*/
+		public function disposeChild(index:int):void {
+			var child:DisplayObject = mChildren[index];
+			if(child){
+				child.setParent(null);
+				child.dispose();	
+			}
+		}
+		public function changeChildsDepth(index:int, newIndex:int):void {
+			mChildren[newIndex] = mChildren[index];
+			mChildren[index] = null;
+		}
+		/** Changes length of the mChildren container. It's part of more efficient children removing process.
+		 *  Note: this function does not disposes removed children. It expects, that the cropped conent is already disposed and null.*/ 
+		public function cropChildren(length:int):void {
+			mChildren.length = length;
 		}
 	}
 }
