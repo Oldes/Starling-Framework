@@ -9,6 +9,7 @@ package starling.utils.memory
 	import flash.utils.Endian;
 	import starling.utils.memory.MemoryBlock;
 	import flash.system.ApplicationDomain;
+	import starling.utils.VectorUtil;
 
 	public final class Memory 
 	{
@@ -82,8 +83,8 @@ package starling.utils.memory
 					if (i > 0 && mFreeAreaPositions[i-1]+mFreeAreaLengths[i-1]== bPosition) {
 						mFreeAreaPositions[i] = mFreeAreaPositions[i-1];
 						mFreeAreaLengths[i]  += mFreeAreaLengths[i - 1] + bLength;
-						mFreeAreaLengths.splice(i - 1, 1);
-						mFreeAreaPositions.splice(i - 1, 1);
+						VectorUtil.removeUnsignedIntAt(mFreeAreaPositions, i - 1);
+						VectorUtil.removeUnsignedIntAt(mFreeAreaLengths, i - 1);
 					} else {
 						mFreeAreaPositions[i] = bPosition;
 						mFreeAreaLengths[i]  += bLength;
@@ -91,8 +92,8 @@ package starling.utils.memory
 					block.position = block.length = 0;
 					return;
 				} else if (tail < position) {
-					mFreeAreaPositions.splice(i, 0, bPosition);
-					mFreeAreaLengths.splice(i, 0, bLength);
+					VectorUtil.insertUnsignedIntAt(mFreeAreaPositions, i, bPosition);
+					VectorUtil.insertUnsignedIntAt(mFreeAreaLengths, i, bLength);
 					block.position = block.length = 0;
 					return;
 				}
@@ -114,8 +115,8 @@ package starling.utils.memory
 			i = mFreeAreaPositions.length;
 			while (i-->0) {
 				if (mFreeAreaLengths[i] == 0) {
-					mFreeAreaPositions.splice(i, 1);
-					mFreeAreaLengths.splice(i, 1);
+					VectorUtil.removeUnsignedIntAt(mFreeAreaPositions, i);
+					VectorUtil.removeUnsignedIntAt(mFreeAreaLengths, i);
 				}
 			}
 			//info();
