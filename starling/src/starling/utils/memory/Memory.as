@@ -6,7 +6,7 @@ package starling.utils.memory
 	 */
 	import flash.errors.MemoryError;
 	import flash.utils.ByteArray;
-	import flash.utils.Endian;;
+	import flash.utils.Endian;
 	import starling.utils.memory.MemoryBlock;
 	import flash.system.ApplicationDomain;
 
@@ -81,7 +81,7 @@ package starling.utils.memory
 				if (tail == position) {
 					if (i > 0 && mFreeAreaPositions[i-1]+mFreeAreaLengths[i-1]== bPosition) {
 						mFreeAreaPositions[i] = mFreeAreaPositions[i-1];
-						mFreeAreaLengths[i]  += mFreeAreaLengths[i - 1];
+						mFreeAreaLengths[i]  += mFreeAreaLengths[i - 1] + bLength;
 						mFreeAreaLengths.splice(i - 1, 1);
 						mFreeAreaPositions.splice(i - 1, 1);
 					} else {
@@ -98,6 +98,27 @@ package starling.utils.memory
 				}
 				i++;
 			}
+		}
+		public static function compactFree():void {
+			//trace("[MEMORY] Compacting free blocks if possible");
+			var len:int = mFreeAreaPositions.length - 1;
+			//info();
+			for (var i:int = 0; i < len; i++) {
+				if (mFreeAreaPositions[i] + mFreeAreaLengths[i] == mFreeAreaPositions[i + 1]) {
+					mFreeAreaPositions[i + 1] = mFreeAreaPositions[i];
+					mFreeAreaLengths[i + 1] += mFreeAreaLengths[i];
+					mFreeAreaLengths[i] = 0; //will be removed later
+				}
+			}
+			//info();
+			i = mFreeAreaPositions.length;
+			while (i-->0) {
+				if (mFreeAreaLengths[i] == 0) {
+					mFreeAreaPositions.splice(i, 1);
+					mFreeAreaLengths.splice(i, 1);
+				}
+			}
+			//info();
 		}
 
 		[Inline]
