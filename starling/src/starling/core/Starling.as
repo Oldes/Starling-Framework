@@ -245,7 +245,7 @@ package starling.core
          */
         public function Starling(rootClass:Class, stage:flash.display.Stage, 
                                  viewPort:Rectangle=null, stage3D:Stage3D=null,
-                                 renderMode:String="auto", profile:Object="baselineConstrained")
+                                 renderMode:String="auto", profile:Object="auto")
         {
             if (stage == null) throw new ArgumentError("Stage must not be null");
             if (rootClass == null) throw new ArgumentError("Root class must not be null");
