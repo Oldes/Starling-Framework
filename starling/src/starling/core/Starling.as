@@ -684,7 +684,7 @@ package starling.core
                 event.ctrlKey, event.altKey, event.shiftKey);
             
             makeCurrent();
-            mStage.broadcastEvent(keyEvent);
+            mStage.dispatchEvent(keyEvent);
             
             if (keyEvent.isDefaultPrevented())
                 event.preventDefault();
