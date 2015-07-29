@@ -83,18 +83,22 @@ package starling.utils.memory
 					if (i > 0 && mFreeAreaPositions[i-1]+mFreeAreaLengths[i-1]== bPosition) {
 						mFreeAreaPositions[i] = mFreeAreaPositions[i-1];
 						mFreeAreaLengths[i]  += mFreeAreaLengths[i - 1] + bLength;
-						VectorUtil.removeUnsignedIntAt(mFreeAreaPositions, i - 1);
-						VectorUtil.removeUnsignedIntAt(mFreeAreaLengths, i - 1);
+						mFreeAreaPositions.removeAt(i - 1);
+						mFreeAreaLengths.removeAt(i - 1);
+						//VectorUtil.removeUnsignedIntAt(mFreeAreaPositions, i - 1);
+						//VectorUtil.removeUnsignedIntAt(mFreeAreaLengths, i - 1);
 					} else {
 						mFreeAreaPositions[i] = bPosition;
 						mFreeAreaLengths[i]  += bLength;
 					}
-					block.position = block.length = 0;
+					block.release();
 					return;
 				} else if (tail < position) {
-					VectorUtil.insertUnsignedIntAt(mFreeAreaPositions, i, bPosition);
-					VectorUtil.insertUnsignedIntAt(mFreeAreaLengths, i, bLength);
-					block.position = block.length = 0;
+					mFreeAreaPositions.insertAt(i, bPosition);
+					mFreeAreaLengths.insertAt(i, bLength);
+					//VectorUtil.insertUnsignedIntAt(mFreeAreaPositions, i, bPosition);
+					//VectorUtil.insertUnsignedIntAt(mFreeAreaLengths, i, bLength);
+					block.release();
 					return;
 				}
 				i++;
@@ -115,8 +119,10 @@ package starling.utils.memory
 			i = mFreeAreaPositions.length;
 			while (i-->0) {
 				if (mFreeAreaLengths[i] == 0) {
-					VectorUtil.removeUnsignedIntAt(mFreeAreaPositions, i);
-					VectorUtil.removeUnsignedIntAt(mFreeAreaLengths, i);
+					mFreeAreaPositions.removeAt(i);
+					mFreeAreaLengths.removeAt(i);
+					//VectorUtil.removeUnsignedIntAt(mFreeAreaPositions, i);
+					//VectorUtil.removeUnsignedIntAt(mFreeAreaLengths, i);
 				}
 			}
 			//info();

@@ -6,19 +6,23 @@ package starling.utils.memory
 	 */
 	public final class MemoryBlock 
 	{
-		public var position: uint;
-		public var length: uint;
-		public var level: String;
-		
-		public function MemoryBlock(position:uint, length:uint) 
+		private var mHead:uint;
+		private var mTail:uint;
+		public var level:String;
+		public function MemoryBlock(head:uint, length:uint) 
 		{
-			this.position = position;
-			this.length = length;
+			mHead = head;
+			mTail = head + length;
 		}
-
+		[Inline] public function get position():uint   { return mHead; }
+		[Inline] public function get tail():uint   { return mTail; }
+		[Inline] public function get length():uint { return mTail - mHead; }
+		[Inline] public function release():void {
+			mHead = mTail = 0;
+		}
 		public function toString(): String
 		{
-			return "[MemoryBlock position: " + position +", length: " + length + "]";
+			return "[MemoryBlock position: " + mHead +", length: " + length + " "+ level + "]";
 		}
 	}
 

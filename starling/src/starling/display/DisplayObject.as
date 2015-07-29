@@ -182,6 +182,7 @@ package starling.display
             mBlendMode = BlendMode.AUTO;
             mTransformationMatrix.setTo(1, 0, 0, 1, 0, 0);
             mOrientationChanged = mUseHandCursor = false;
+			name = null;
 			if (mFilter) {
 				mFilter.release();
 				mFilter = null;

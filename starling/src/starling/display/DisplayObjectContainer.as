@@ -120,7 +120,7 @@ package starling.display
                 
                 	// 'splice' creates a temporary object, so we avoid it if it's not necessary
                 	if (index == numChildren) mChildren[numChildren]=child; //avoiding push
-                	else spliceChildren(index, 0, child);
+                	else mChildren.insertAt(index, child); //spliceChildren(index, 0, child);
                 
                 	child.setParent(this);
 					/* OLDES: I don't use this kind of events, so commenting it out
@@ -238,7 +238,7 @@ package starling.display
 					mChildren[index-1] = null;
 					mChildren.length--;
 				} else {
-					spliceChildren(index, 1); 
+					mChildren.removeAt(index); //spliceChildren(index, 1); 
 				}
                 child.setParent(null);
                 if (dispose) child.dispose();
@@ -319,8 +319,8 @@ package starling.display
 
 			//removing 2x splice call
 			//based on: https://github.com/Gamua/Starling-Framework/issues/700
-			spliceChildren(oldIndex, 1);
-            spliceChildren(index, 0, child);
+			mChildren.removeAt(oldIndex); //spliceChildren(oldIndex, 1);
+            mChildren.insertAt(index, child); // spliceChildren(index, 0, child);
         }
         
         /** Swaps the indexes of two children. */
