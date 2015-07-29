@@ -67,8 +67,8 @@ package starling.utils
             var i:int;
             var length:uint = vector.length;
 
-            if (index < 0) index += length + 1;
-            if (index < 0) index = 0;
+           // if (index < 0) index += length + 1;
+           // if (index < 0) index = 0;
 
             for (i = index - 1; i >= length; --i)
                 vector[i] = 0;
@@ -86,8 +86,8 @@ package starling.utils
             var i:int;
             var length:uint = vector.length;
 
-            if (index < 0) index += length;
-            if (index < 0) index = 0; else if (index >= length) index = length - 1;
+          //  if (index < 0) index += length;
+          //  if (index < 0) index = 0; else if (index >= length) index = length - 1;
 
             var value:uint = vector[index];
 
