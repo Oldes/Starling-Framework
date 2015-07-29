@@ -667,7 +667,8 @@ package starling.display
             }
         }
         
-        /** The horizontal scale factor. '1' means no scale, negative values flip the object. */
+        /** The horizontal scale factor. '1' means no scale, negative values flip the object.
+         *  @default 1 */
         [Inline] final public function get scaleX():Number { return mScaleX; }
         public function set scaleX(value:Number):void 
         { 
@@ -678,8 +679,9 @@ package starling.display
             }
         }
         
-        /** The vertical scale factor. '1' means no scale, negative values flip the object. */
-        [Inline] final  public function get scaleY():Number { return mScaleY; }
+        /** The vertical scale factor. '1' means no scale, negative values flip the object.
+         *  @default 1 */
+        [Inline] final public function get scaleY():Number { return mScaleY; }
         public function set scaleY(value:Number):void 
         { 
             if (mScaleY != value)
@@ -688,7 +690,16 @@ package starling.display
                 mOrientationChanged = true;
             }
         }
-        
+
+        /** Sets both 'scaleX' and 'scaleY' to the same value. The getter simply returns the
+         *  value of 'scaleX' (even if the scaling values are different). @default 1 */
+        [Inline] final public function get scale():Number { return scaleX; }
+        public function set scale(value:Number):void {
+			if (mScaleX != value || mScaleY != value) {
+				mScaleX = mScaleY = value;
+                mOrientationChanged = true;
+			}
+        }
         /** The horizontal skew angle in radians. */
         [Inline] final public function get skewX():Number { return mSkewX; }
         public function set skewX(value:Number):void 
@@ -729,7 +740,7 @@ package starling.display
             }
         }
         
-        /** The opacity of the object. 0 = transparent, 1 = opaque. */
+        /** The opacity of the object. 0 = transparent, 1 = opaque. @default 1 */
         [Inline] final public function get alpha():Number { return mAlpha; }
         public function set alpha(value:Number):void 
         { 
