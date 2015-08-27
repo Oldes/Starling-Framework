@@ -398,19 +398,22 @@ package starling.display
         
         // helpers
         
-        private final function isEquivalent(a:Number, b:Number, epsilon:Number=0.0001):Boolean
+        [Inline]
+		private final function isEquivalent(a:Number, b:Number, epsilon:Number):Boolean
         {
             return (a - epsilon < b) && (a + epsilon > b);
         }
-        
+		
+        [Inline]
         private final function normalizeAngle(angle:Number):Number
         {
             // move to equivalent value in range [0 deg, 360 deg] without a loop
             angle = angle % TWO_PI;
 
             // move to [-180 deg, +180 deg]
-            if (angle < -Math.PI) angle += TWO_PI;
-            if (angle >  Math.PI) angle -= TWO_PI;
+			//OLDES: This was probably to be compatible with native Flash, I don't need such a compatibility so I comment it out.
+			//if (angle < -Math.PI) angle += TWO_PI;
+			//if (angle >  Math.PI) angle -= TWO_PI;
 
             return angle;
         }
@@ -564,7 +567,7 @@ package starling.display
             mScaleX = (mSkewY > -PI_Q && mSkewY < PI_Q) ?  matrix.a / Math.cos(mSkewY)
                                                         :  matrix.b / Math.sin(mSkewY);
 
-            if (isEquivalent(mSkewX, mSkewY))
+            if (isEquivalent(mSkewX, mSkewY, 0.0001))
             {
                 mRotation = mSkewX;
                 mSkewX = mSkewY = 0;
