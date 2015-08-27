@@ -62,5 +62,9 @@ package starling.utils
             array.length = length - 1;
             return object;
         }
+		
+		public static function shuffle(a:*, b:*):Number {
+			return (Math.random() < 0.5)? -1: 1;
+		}
     }
 }
