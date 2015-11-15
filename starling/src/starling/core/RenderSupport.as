@@ -159,7 +159,7 @@ package starling.core
         }
         
         /** Empties the matrix stack, resets the modelview matrix to the identity matrix. */
-        public function resetMatrix():void
+        [Inline] public final function resetMatrix():void
         {
             mMatrixStackSize = 0;
             loadIdentity();
