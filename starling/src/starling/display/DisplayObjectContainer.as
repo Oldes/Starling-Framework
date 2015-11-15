@@ -276,7 +276,7 @@ package starling.display
 		/** Recursively removes from parent and disposes this object and all it's children
 		 *  Does not fire any 'removed' events! */
 		public function removeAndDispose():void {
-			removeAllChildren();
+			//removeAllChildren(); //this is called from later dispose
 			if (parent) {
 				parent.removeChild(this, true);
 			} else {
