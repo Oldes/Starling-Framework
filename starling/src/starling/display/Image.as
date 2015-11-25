@@ -259,7 +259,14 @@ package starling.display
         /** @private */
         starling_internal static function toPool(image:Image):void
         {
-            // reset any object-references, to make sure we don't prevent any garbage collection
+			var n:int = sPool.length;
+			while (n-->0) {
+				if (sPool[n] == image) {
+					//trace("Image ALREADY IN POOL!!" + image.name +" "+image.numId);
+					return;
+				}
+			}
+			 // reset any object-references, to make sure we don't prevent any garbage collection
             image.release();
             sPool[sPoolTop++]=image;
         }
