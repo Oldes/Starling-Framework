@@ -217,6 +217,7 @@ package starling.core
         private static var sHandleLostContext:Boolean;
         private static var sContextData:Dictionary = new Dictionary(true);
         private static var sAll:Vector.<Starling> = new <Starling>[];
+		private static var sRectangle:Rectangle = new Rectangle();
         
         // construction
         
@@ -263,8 +264,9 @@ package starling.core
             mStage = new Stage(viewPort.width, viewPort.height, stage.color);
             mNativeOverlay = new Sprite();
             mNativeStage = stage;
-            mNativeStage.addChild(mNativeOverlay);
-            mNativeStageContentScaleFactor = 1.0;
+            //mNativeStage.addChild(mNativeOverlay);
+            
+			mNativeStageContentScaleFactor = 1.0;
             mTouchProcessor = new TouchProcessor(mStage);
             mJuggler = new Juggler();
             mAntiAliasing = 0;
@@ -505,16 +507,16 @@ package starling.core
                 mClippedViewPort.width  / scaleX, 
                 mClippedViewPort.height / scaleY);
             
-            if (!mShareContext)
+            //if (!mShareContext)
                 RenderSupport.clear(mStage.color, 1.0);
             
             mStage.render(mSupport, 1.0);
             mSupport.finishQuadBatch();
             
-            if (mStatsDisplay)
-                mStatsDisplay.drawCount = mSupport.drawCount;
+            //if (mStatsDisplay)
+            //    mStatsDisplay.drawCount = mSupport.drawCount;
             
-            if (!mShareContext)
+            //if (!mShareContext)
                 mContext.present();
         }
         
@@ -532,12 +534,11 @@ package starling.core
                 // Constrained mode requires that the viewport is within the native stage bounds;
                 // thus, we use a clipped viewport when configuring the back buffer. (In baseline
                 // mode, that's not necessary, but it does not hurt either.)
+                sRectangle.setTo(0, 0, mNativeStage.stageWidth, mNativeStage.stageHeight);
+                mClippedViewPort = mViewPort.intersection(sRectangle);
                 
-                mClippedViewPort = mViewPort.intersection(
-                    new Rectangle(0, 0, mNativeStage.stageWidth, mNativeStage.stageHeight));
-                
-                if (!mShareContext)
-                {
+                //if (!mShareContext)
+                //{
                     // setting x and y might move the context to invalid bounds (since changing
                     // the size happens in a separate operation) -- so we have no choice but to
                     // set the backbuffer to a very small size first, to be on the safe side.
@@ -555,7 +556,7 @@ package starling.core
                         mNativeStageContentScaleFactor = mNativeStage["contentsScaleFactor"];
                     else
                         mNativeStageContentScaleFactor = 1.0;
-                }
+                //}
             }
         }
         
@@ -594,12 +595,13 @@ package starling.core
             textField.background = true;
             textField.backgroundColor = 0x440000;
 
+			mNativeStage.addChild(mNativeOverlay);
             updateNativeOverlay();
             nativeOverlay.addChild(textField);
         }
         
         /** Make this Starling instance the <code>current</code> one. */
-        public function makeCurrent():void
+        [Inline] public final function makeCurrent():void
         {
             sCurrent = this;
         }
@@ -670,7 +672,7 @@ package starling.core
                 else if (mRendering) render();
             }
 
-            updateNativeOverlay();
+            //updateNativeOverlay(); //OLDES: Am I using nativeOverlay?
         }
         
         private function onKey(event:KeyboardEvent):void
