@@ -10,6 +10,7 @@
 
 package starling.display
 {
+	import core.Assets;
 	import starling.core.starling_internal;
     import flash.display.Bitmap;
     import flash.geom.Matrix;
@@ -208,6 +209,10 @@ package starling.display
 		
 		public function release():void {
 			//trace("RELEASE IMG " + name);
+			if (name) {
+				delete Assets.namedObjects[name];
+				name = null;
+			}
 			if (parent) this.removeFromParent(true);
 			mTexture = null;
 		}
