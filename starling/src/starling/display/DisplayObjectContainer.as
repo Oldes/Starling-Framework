@@ -108,40 +108,33 @@ package starling.display
         {
             var numChildren:int = mChildren.length; 
             
-            if (index >= 0 && index <= numChildren)
-            {
-                if (child.parent == this)
-                {
-                    setChildIndex(child, index); // avoids dispatching events
-                }
-                else
-                {
-                    child.removeFromParent();
-                
-                	// 'splice' creates a temporary object, so we avoid it if it's not necessary
-                	if (index == numChildren) mChildren[numChildren]=child; //avoiding push
-                	else mChildren.insertAt(index, child); //spliceChildren(index, 0, child);
-                
-                	child.setParent(this);
-					/* OLDES: I don't use this kind of events, so commenting it out
-                	if (dispatching) {
-                    	child.dispatchEventWith(Event.ADDED, true);
-                    
-                    	if (stage)
-                    	{
-                        	var container:DisplayObjectContainer = child as DisplayObjectContainer;
-                        	if (container) container.broadcastEventWith(Event.ADDED_TO_STAGE);
-                        	else           child.dispatchEventWith(Event.ADDED_TO_STAGE);
-                    	}
-                	}*/
-                }
-                
-                return child;
-            }
-            else
-            {
-                throw new RangeError("Invalid child index");
-            }
+			CONFIG::debug {
+				if (index < 0 || index > numChildren) throw new RangeError("Invalid child index");
+			}
+			if (child.parent == this)
+			{
+				setChildIndex(child, index); // avoids dispatching events
+			}
+			else
+			{
+				child.removeFromParent();
+			
+				mChildren.insertAt(index, child);
+			
+				child.setParent(this);
+				/* OLDES: I don't use this kind of events, so commenting it out
+				if (dispatching) {
+					child.dispatchEventWith(Event.ADDED, true);
+				
+					if (stage)
+					{
+						var container:DisplayObjectContainer = child as DisplayObjectContainer;
+						if (container) container.broadcastEventWith(Event.ADDED_TO_STAGE);
+						else           child.dispatchEventWith(Event.ADDED_TO_STAGE);
+					}
+				}*/
+			}
+			return child;
         }
         
         /** Replaces a child in the container at a certain index. */
@@ -149,107 +142,96 @@ package starling.display
         {
             var numChildren:int = mChildren.length;
             
-            if (index >= 0 && index <= numChildren)
-            {
-                child.removeFromParent();
-                
-                var prevChild:DisplayObject
-                if (index < numChildren) {
-                    prevChild = mChildren[index];
-                    mChildren[index] = child;
-                } else {
-                    mChildren.push(child);
-                }
-                //prevChild can be also null if index == numChildren
-                
-                
-                child.setParent(this);
+            CONFIG::debug {
+				if (index < 0 || index > numChildren) throw new RangeError("Invalid child index " + index + " "+numChildren+" "+child);
+			}
+			child.removeFromParent();
+			
+			var prevChild:DisplayObject
+			if (index < numChildren) {
+				prevChild = mChildren[index];
+				mChildren[index] = child;
+			} else {
+				mChildren.push(child);
+			}
+			//prevChild can be also null if index == numChildren
+			
+			
+			child.setParent(this);
+			/* OLDES: I don't use this kind of events, so commenting it out
+			if (dispatching) {
+				child.dispatchEventWith(Event.ADDED, true);
+				if (prevChild) prevChild.dispatchEventWith(Event.REMOVED, true);
+				
+				if (stage)
+				{
+					var container:DisplayObjectContainer;
+					container = child as DisplayObjectContainer;
+					if (container) container.broadcastEventWith(Event.ADDED_TO_STAGE);
+					else           child.dispatchEventWith(Event.ADDED_TO_STAGE);
+				}
+			}
+			*/
+			
+			if (prevChild)
+			{
 				/* OLDES: I don't use this kind of events, so commenting it out
-                if (dispatching) {
-                    child.dispatchEventWith(Event.ADDED, true);
-                    if (prevChild) prevChild.dispatchEventWith(Event.REMOVED, true);
-                    
-                    if (stage)
-                    {
-                        var container:DisplayObjectContainer;
-                        container = child as DisplayObjectContainer;
-                        if (container) container.broadcastEventWith(Event.ADDED_TO_STAGE);
-                        else           child.dispatchEventWith(Event.ADDED_TO_STAGE);
-                    }
-                }
-                */
-                
-                if (prevChild)
-                {
-					/* OLDES: I don't use this kind of events, so commenting it out
-                    if (dispatching) {
-                        if (stage) {
-                            container = prevChild as DisplayObjectContainer;
-                            if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
-                            else           prevChild.dispatchEventWith(Event.REMOVED_FROM_STAGE);
-                        }
-                    }*/
-                    prevChild.setParent(null);
-                    if (dispose) prevChild.dispose();
-                }
-                
-                return child;
-            }
-            else
-            {
-                throw new RangeError("Invalid child index " + index + " "+numChildren+" "+child);
-            }
+				if (dispatching) {
+					if (stage) {
+						container = prevChild as DisplayObjectContainer;
+						if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
+						else           prevChild.dispatchEventWith(Event.REMOVED_FROM_STAGE);
+					}
+				}*/
+				prevChild.setParent(null);
+				if (dispose) prevChild.dispose();
+			}
+			
+			return child;
         }
         
         /** Removes a child from the container. If the object is not a child, nothing happens. 
          *  If requested, the child will be disposed right away. */
-        public function removeChild(child:DisplayObject, dispose:Boolean=false):DisplayObject
+        public function removeChild(child:DisplayObject, dispose:Boolean=false):void
         {
-            var childIndex:int = getChildIndex(child);
-            if (childIndex != -1) removeChildAt(childIndex, dispose);
-            return child;
+            removeChildAt(getChildIndex(child), dispose);
+            //return child;
         }
         
         /** Removes a child at a certain index. Children above the child will move down. If
          *  requested, the child will be disposed right away. */
-        public function removeChildAt(index:int, dispose:Boolean=false):DisplayObject
+        public function removeChildAt(index:int, dispose:Boolean=false):void
         {
-            if (index >= 0 && index < numChildren)
-            {
-                var child:DisplayObject = mChildren[index];
-				/*OLDES: commenting this out as I don't use it.
-                if (dispatching) {
-                    child.dispatchEventWith(Event.REMOVED, true);
-                    
-                    if (stage)
-                    {
-                        var container:DisplayObjectContainer = child as DisplayObjectContainer;
-                        if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
-                        else           child.dispatchEventWith(Event.REMOVED_FROM_STAGE);
-                    }
-					index = mChildren.indexOf(child); // index might have changed by event handler
-					if (index >= 0) mChildren.splice(index, 1); 
-                } else {
-					mChildren.splice(index, 1); 
-                }
-				//instead use just:*/
-				// 'splice' creates a temporary object, so we avoid it if it's not necessary
-                if (index == numChildren) {
-					mChildren[index-1] = null;
-					mChildren.length--;
-				} else {
-					mChildren.removeAt(index); //spliceChildren(index, 1); 
+			//It looks that my precomputed animations in rare cases wants to remove not existing index (0), so I will keep returning null until I find reason and fix it.
+			//CONFIG::debug {
+				if (index < 0 || index >= numChildren) {
+					return;
+					//throw new RangeError("Invalid child index");
 				}
-                child.setParent(null);
-                if (dispose) child.dispose();
-                
-                return child;
-            }
-            else
-            {
-				return null;
-                //throw new RangeError("Invalid child index");
-            }
+			//}
+			var child:DisplayObject = mChildren[index];
+			/*OLDES: commenting this out as I don't use it.
+			if (dispatching) {
+				child.dispatchEventWith(Event.REMOVED, true);
+				
+				if (stage)
+				{
+					var container:DisplayObjectContainer = child as DisplayObjectContainer;
+					if (container) container.broadcastEventWith(Event.REMOVED_FROM_STAGE);
+					else           child.dispatchEventWith(Event.REMOVED_FROM_STAGE);
+				}
+				index = mChildren.indexOf(child); // index might have changed by event handler
+				if (index >= 0) mChildren.splice(index, 1); 
+			} else {
+				mChildren.splice(index, 1); 
+			}
+			//instead use just:*/
+			mChildren.removeAt(index); 
+			
+			child.setParent(null);
+			if (dispose) child.dispose();
+			
+			//return child;
         }
         
         /** Removes a range of children from the container (endIndex included). 
@@ -285,13 +267,15 @@ package starling.display
 		}
         
         /** Returns a child object at a certain index. */
-        public function getChildAt(index:int):DisplayObject
+        //[Inline] 
+		final public function getChildAt(index:int):DisplayObject
         {
-            if (index >= 0 && index < numChildren)
-                return mChildren[index];
-            else
-				return null;
-                //throw new RangeError("Invalid child index");
+			CONFIG::debug {
+				 if (index < 0 || index >= numChildren) throw new RangeError("Invalid child index");
+			}
+			return mChildren[index];
+            //return (index >= numChildren || index < 0) ? null : mChildren[index];
+			
         }
         
         /** Returns a child object with a certain name (non-recursively). */
@@ -305,7 +289,7 @@ package starling.display
         }
         
         /** Returns the index of a child within the container, or "-1" if it is not found. */
-        public function getChildIndex(child:DisplayObject):int
+		[Inline] final public function getChildIndex(child:DisplayObject):int
         {
             return mChildren.indexOf(child);
         }
@@ -458,8 +442,10 @@ package starling.display
         public function broadcastEvent(event:Event):void
         {
             if (!dispatching) return;
-            if (event.bubbles)
-                throw new ArgumentError("Broadcast of bubbling events is prohibited");
+            CONFIG::debug {
+				if (event.bubbles)
+					throw new ArgumentError("Broadcast of bubbling events is prohibited");
+			}
             
             // The event listeners might modify the display tree, which could make the loop crash. 
             // Thus, we collect them in a list and iterate over that list instead.
