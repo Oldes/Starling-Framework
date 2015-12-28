@@ -126,8 +126,11 @@ package starling.display
      */
     public class DisplayObject extends EventDispatcher
     {
+		private static const PI:Number = Math.PI;
         private static const TWO_PI:Number = Math.PI * 2.0;
-        
+		private static const PI_Q:Number = PI / 4.0;
+        private static const PI_Qn:Number = -PI_Q;
+		
         // members
         
         private var mX:Number;
@@ -546,8 +549,6 @@ package starling.display
         
         public function set transformationMatrix(matrix:Matrix):void
         {
-            const PI_Q:Number = Math.PI / 4.0;
-
             mOrientationChanged = false;
             mTransformationMatrix.copyFrom(matrix);
             mPivotX = mPivotY = 0;
@@ -562,9 +563,9 @@ package starling.display
             if (mSkewX != mSkewX) mSkewX = 0.0;
             if (mSkewY != mSkewY) mSkewY = 0.0;
 
-            mScaleY = (mSkewX > -PI_Q && mSkewX < PI_Q) ?  matrix.d / Math.cos(mSkewX)
+            mScaleY = (mSkewX > PI_Qn && mSkewX < PI_Q) ?  matrix.d / Math.cos(mSkewX)
                                                         : -matrix.c / Math.sin(mSkewX);
-            mScaleX = (mSkewY > -PI_Q && mSkewY < PI_Q) ?  matrix.a / Math.cos(mSkewY)
+            mScaleX = (mSkewY > PI_Qn && mSkewY < PI_Q) ?  matrix.a / Math.cos(mSkewY)
                                                         :  matrix.b / Math.sin(mSkewY);
 
             if (isEquivalent(mSkewX, mSkewY, 0.0001))
