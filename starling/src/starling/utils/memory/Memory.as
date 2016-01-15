@@ -18,7 +18,7 @@ package starling.utils.memory
 		public  static const mMemoryBlocks:Vector.<MemoryBlock> = new Vector.<MemoryBlock>;
 		private static const mFreeAreaLengths:Vector.<uint> = new Vector.<uint>;
 		private static const mFreeAreaPositions:Vector.<uint> = new Vector.<uint>;
-		private static const DOMAIN_MEMORY_LENGTH:int = 59999232; //58593 * 1024
+		private static const DOMAIN_MEMORY_LENGTH:int = 80790 * 1024;
 		
 		/**
 		 * The current application domain.
