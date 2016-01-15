@@ -60,7 +60,17 @@ package starling.utils {
 			sign = (1.0 - (int(angleRadians < 0.0) << 1));
 			return angleRadians * (sign * 0.225 * (angleRadians - sign) + 1.0);
 		}
-
+		/*
+		static private const PI:Number = Math.PI;
+		static private const B:Number =  4 / PI;
+		static private const C:Number = -4 / (PI*PI);
+		[Inline]
+		static public function sin2(angleRadians: Number): Number {
+			angleRadians %= PI;
+			return B * angleRadians + C * angleRadians * (angleRadians<0?-angleRadians:angleRadians);
+		}
+		*/
+		
 		/**
 		 * Computes and returns the cosine of the specified angle in radians.
 		 *
