@@ -148,7 +148,7 @@ package starling.textures
                 mHelperImage.dispose();
             }
             
-            super.dispose();
+            super.disposeParent(); //Oldes: calling this instead of original super.dispose() as I'm using pool for SubTextures and RenderTexture is not welcome there!
         }
         
         /** Draws an object into the texture. Note that any filters on the object will currently

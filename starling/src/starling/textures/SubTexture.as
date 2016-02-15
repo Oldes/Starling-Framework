@@ -35,6 +35,8 @@ package starling.textures
         private var mWidth:Number;
         private var mHeight:Number;
         private var mTransformationMatrix:Matrix;
+		
+		protected var _inPool:Boolean;
         
         /** Helper object. */
         private static var sTexCoords:Point = new Point();
@@ -87,6 +89,12 @@ package starling.textures
 			//super.dispose();
 			SubTexture.starling_internal::toPool(this);
         }
+		
+		[Inline] protected final function disposeParent():void {
+			if (mOwnsParent) mParent.dispose();
+			mParent = null;
+			mFrame = null;
+		}
         
         /** @inheritDoc */
         public override function adjustVertexData(vertexData:VertexData, vertexID:int, count:int):void
@@ -219,11 +227,9 @@ package starling.textures
 		
 		// SubTexture pooling...
 		
-		public function release():void {
+		[Inline] public final function release():void {
 			//trace("RELEASE SubTexture");
-			if (mOwnsParent) mParent.dispose();
-			mParent = null;
-			mFrame = null;
+			disposeParent();
 			mTransformationMatrix.setTo(1, 0, 0, 1, 0, 0);
 		}
 		
@@ -250,6 +256,8 @@ package starling.textures
                                         region.height / mParent.height);
             mTransformationMatrix.translate(region.x / mParent.width,
                                             region.y / mParent.height);
+											
+			_inPool = false;
 			return this;
 		}
 		
@@ -274,6 +282,10 @@ package starling.textures
         {
             // reset any object-references, to make sure we don't prevent any garbage collection
             texture.release();
+			CONFIG::debug {
+				if (texture._inPool) throw new Error("[SubTexture] Already in Pool!! "+texture)
+			}
+			texture._inPool = true;
             sPool[sPoolTop++]=texture;
         }
     }
