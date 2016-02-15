@@ -209,10 +209,7 @@ package starling.display
 		
 		public function release():void {
 			//trace("RELEASE IMG " + name);
-			if (name) {
-				delete Assets.namedObjects[name];
-				name = null;
-			}
+			name = null;
 			if (parent) this.removeFromParent(true);
 			mTexture = null;
 		}
@@ -243,6 +240,8 @@ package starling.display
 			mSmoothing = TextureSmoothing.BILINEAR;
 
 			mVertexDataCacheInvalid = true;
+			
+			_inPool = false;
 			return this;
 		}
 		
@@ -264,15 +263,13 @@ package starling.display
         /** @private */
         starling_internal static function toPool(image:Image):void
         {
-			var n:int = sPool.length;
-			while (n-->0) {
-				if (sPool[n] == image) {
-					//trace("Image ALREADY IN POOL!!" + image.name +" "+image.numId);
-					return;
-				}
+			CONFIG::debug {
+				if(image._inPool) throw new Error("[Image] Already in Pool!! "+image)
 			}
-			 // reset any object-references, to make sure we don't prevent any garbage collection
+			// reset any object-references, to make sure we don't prevent any garbage collection
+			
             image.release();
+			image._inPool = true;
             sPool[sPoolTop++]=image;
         }
     }

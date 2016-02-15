@@ -156,6 +156,8 @@ package starling.display
         
 		private var mIsDispatching:Boolean;
 		
+		protected var _inPool:Boolean;
+		
         /** Helper objects. */
         private static var sAncestors:Vector.<DisplayObject> = new <DisplayObject>[];
         private static var sHelperRect:Rectangle = new Rectangle();
