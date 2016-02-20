@@ -13,12 +13,9 @@ package starling.display
     import flash.geom.Matrix;
     import flash.geom.Point;
     import flash.geom.Rectangle;
-    import flash.system.Capabilities;
-    import flash.utils.getQualifiedClassName;
     
     import starling.core.RenderSupport;
     import starling.core.starling_internal;
-    import starling.errors.AbstractClassError;
     import starling.events.Event;
     import starling.filters.FragmentFilter;
     import starling.utils.MatrixUtil;
