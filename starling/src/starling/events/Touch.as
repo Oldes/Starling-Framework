@@ -70,7 +70,8 @@ package starling.events
         /** Converts the current location of a touch to the local coordinate system of a display 
          *  object. If you pass a 'resultPoint', the result will be stored in this point instead 
          *  of creating a new object.*/
-        public function getLocation(space:DisplayObject, resultPoint:Point=null):Point
+		[Inline]
+        public final function getLocation(space:DisplayObject, resultPoint:Point):Point
         {
             sHelperPoint.setTo(mGlobalX, mGlobalY);
             return space.globalToLocal(sHelperPoint, resultPoint);
@@ -79,7 +80,8 @@ package starling.events
         /** Converts the previous location of a touch to the local coordinate system of a display 
          *  object. If you pass a 'resultPoint', the result will be stored in this point instead 
          *  of creating a new object.*/
-        public function getPreviousLocation(space:DisplayObject, resultPoint:Point=null):Point
+		[Inline]
+        public final function getPreviousLocation(space:DisplayObject, resultPoint:Point):Point
         {
             sHelperPoint.setTo(mPreviousGlobalX, mPreviousGlobalY);
             return space.globalToLocal(sHelperPoint, resultPoint);
@@ -88,9 +90,10 @@ package starling.events
         /** Returns the movement of the touch between the current and previous location. 
          *  If you pass a 'resultPoint', the result will be stored in this point instead 
          *  of creating a new object. */ 
-        public function getMovement(space:DisplayObject, resultPoint:Point=null):Point
+		[Inline]
+        public final function getMovement(space:DisplayObject, resultPoint:Point):Point
         {
-            if (resultPoint == null) resultPoint = new Point();
+            //if (resultPoint == null) resultPoint = new Point();
             getLocation(space, resultPoint);
             var x:Number = resultPoint.x;
             var y:Number = resultPoint.y;
