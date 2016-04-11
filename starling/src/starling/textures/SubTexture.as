@@ -229,7 +229,8 @@ package starling.textures
 		
 		[Inline] public final function release():void {
 			//trace("RELEASE SubTexture");
-			disposeParent();
+			mParent = null;
+			mFrame = null;
 			mTransformationMatrix.setTo(1, 0, 0, 1, 0, 0);
 		}
 		
