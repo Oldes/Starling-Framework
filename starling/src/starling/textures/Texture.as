@@ -284,7 +284,7 @@ package starling.textures
                 atfData.width, atfData.height, useMipMaps && atfData.numTextures > 1, 
                 false, false, scale, repeat);
             
-            concreteTexture.uploadAtfData(data, 0, async);
+            concreteTexture.uploadAtfData(data, data.position, async);
             concreteTexture.onRestore = function():void
             {
                 concreteTexture.uploadAtfData(data, 0);
