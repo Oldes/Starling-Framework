@@ -214,7 +214,7 @@ package starling.core
         private var mNativeStageContentScaleFactor:Number;
 
         private static var sCurrent:Starling;
-        private static var sHandleLostContext:Boolean;
+        private static var sHandleLostContext:Boolean = true;
         private static var sContextData:Dictionary = new Dictionary(true);
         private static var sAll:Vector.<Starling> = new <Starling>[];
 		private static var sRectangle:Rectangle = new Rectangle();
@@ -464,8 +464,10 @@ package starling.core
             
             // to avoid overloading time-based animations, the maximum delta is truncated.
             if (passedTime > 1.0) passedTime = 1.0;
-
-            advanceTime(passedTime);
+			
+			//try {
+				advanceTime(passedTime);
+			//} catch ( error : Error ) {showFatalError( error.message +" " +error.getStackTrace() );}
             render();
         }
         
@@ -580,7 +582,7 @@ package starling.core
             mNativeOverlay.scaleY = mViewPort.height / mStage.stageHeight;
         }
         
-        private function showFatalError(message:String):void
+        public function showFatalError(message:String):void
         {
             var textField:TextField = new TextField();
             var textFormat:TextFormat = new TextFormat("Verdana", 12, 0xFFFFFF);
@@ -598,6 +600,8 @@ package starling.core
 			mNativeStage.addChild(mNativeOverlay);
             updateNativeOverlay();
             nativeOverlay.addChild(textField);
+			
+			CONFIG::debug { trace(message); }
         }
         
         /** Make this Starling instance the <code>current</code> one. */

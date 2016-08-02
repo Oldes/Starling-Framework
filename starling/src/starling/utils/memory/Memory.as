@@ -18,7 +18,7 @@ package starling.utils.memory
 		public  static const mMemoryBlocks:Vector.<MemoryBlock> = new Vector.<MemoryBlock>;
 		private static const mFreeAreaLengths:Vector.<uint> = new Vector.<uint>;
 		private static const mFreeAreaPositions:Vector.<uint> = new Vector.<uint>;
-		private static const DOMAIN_MEMORY_LENGTH:int = 80790 * 1024;
+		private static const DOMAIN_MEMORY_LENGTH:int = 80190 * 1024;
 		
 		/**
 		 * The current application domain.
@@ -63,6 +63,8 @@ package starling.utils.memory
 				}
 				i++;
 			}
+			trace("[MEMORY] FAILED TO ALLOCATE: " + requiredLength);
+			info();
 			throw new MemoryError();
 		}
 		
@@ -105,9 +107,10 @@ package starling.utils.memory
 			}
 		}
 		public static function compactFree():void {
-			//trace("[MEMORY] Compacting free blocks if possible");
+			trace("[MEMORY] Compacting free blocks if possible");
 			var len:int = mFreeAreaPositions.length - 1;
-			//info();
+			if (len == 0) return;
+			info();
 			for (var i:int = 0; i < len; i++) {
 				if (mFreeAreaPositions[i] + mFreeAreaLengths[i] == mFreeAreaPositions[i + 1]) {
 					mFreeAreaPositions[i + 1] = mFreeAreaPositions[i];
@@ -115,7 +118,7 @@ package starling.utils.memory
 					mFreeAreaLengths[i] = 0; //will be removed later
 				}
 			}
-			//info();
+			info();
 			i = mFreeAreaPositions.length;
 			while (i-->0) {
 				if (mFreeAreaLengths[i] == 0) {
@@ -125,7 +128,7 @@ package starling.utils.memory
 					//VectorUtil.removeUnsignedIntAt(mFreeAreaLengths, i);
 				}
 			}
-			//info();
+			info();
 		}
 
 		[Inline]
@@ -144,13 +147,13 @@ package starling.utils.memory
 		public static function info():void {
 			var free:uint;
 			var len:int = mFreeAreaLengths.length;
-			trace("Free blocks:   " + len);
+			log("[MEM] Free blocks:   " + len);
 			while (len-->0) {
-				trace("     block: " + mFreeAreaPositions[len] + " / " + mFreeAreaLengths[len]);
+				log("[MEM]      block: " + mFreeAreaPositions[len] + " / " + mFreeAreaLengths[len]);
 				free += mFreeAreaLengths[len];
 			}
-			trace("Free bytes:    " + free);
-			trace("Used bytes:    " + (applicationDomain.domainMemory.length - free))
+			log("[MEM] Free bytes:    " + free);
+			log("[MEM] Used bytes:    " + (applicationDomain.domainMemory.length - free))
 		}
 		
 		

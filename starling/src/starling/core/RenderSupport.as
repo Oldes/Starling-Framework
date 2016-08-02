@@ -94,6 +94,10 @@ package starling.core
         {
             for each (var quadBatch:QuadBatch in mQuadBatches)
                 quadBatch.dispose();
+			if (mRenderTarget) mRenderTarget = null;
+			mClipRectStack.length = 0;
+			mMatrixStack.length = 0;
+			mBlendMode = BlendMode.NORMAL;
         }
         
         // matrix manipulation

@@ -105,14 +105,14 @@ package starling.animation
         /** Figures out if the juggler contains one or more tweens with a certain target. */
         public function containsTweens(target:Object):Boolean
         {
-            if (target == null) return false;
-            
-            for (var i:int=mObjects.length-1; i>=0; --i)
-            {
-                var tween:Tween = mObjects[i] as Tween;
-                if (tween && tween.target == target) return true;
+            if (target)
+			{
+				for (var i:int=mObjects.length-1; i>=0; --i)
+				{
+					var tween:Tween = mObjects[i] as Tween;
+					if (tween && tween.target == target) return true;
+				}
             }
-            
             return false;
         }
         
@@ -132,17 +132,27 @@ package starling.animation
             }
         }
 		/** Removes all tweens from the juggler. (not dispatching any events) */
-        public function purgeAllTweens():void
+        public function debugTweens():void
         {
 			var i:int = mObjects.length;
+			log("[JUGGLER] DebugTweens "+i);
 			while( i --> 0){
                 var tween:Object = mObjects[i] as Object;
-				if (tween is Tween ){
-					//if (tween is Tween) Tween.starling_internal::toPool(tween as Tween);
-					mObjects[i] = null;
+				if (tween) {
+					var inPool:Boolean = tween.hasOwnProperty("_inPool") ? tween._inPool : false;
+					if (tween is Tween ){
+						/////if (tween is Tween) Tween.starling_internal::toPool(tween as Tween);
+						//mObjects[i] = null;
+						if(Tween(tween).target)	log("[JUGGLER][TWEEN target: "+Tween(tween).target);
+					} else {
+						log("[JUGGLER][TWEEN] "+tween +" "+inPool);
+					}
+					if (inPool) {
+						log("[WARNING] ############################### tween in pool found! " + tween);
+					}
 				}
             }
-			trace(mObjects);
+			//trace(mObjects);
         }
         
         /** Delays the execution of a function until <code>delay</code> seconds have passed.
