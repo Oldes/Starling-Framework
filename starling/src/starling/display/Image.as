@@ -245,7 +245,7 @@ package starling.display
 			return this;
 		}
 		
-		private static var sPool:Vector.<Image> = new Vector.<Image>(3000);
+		private static var sPool:Vector.<Image> = new Vector.<Image>(CONFIG::PoolSizeImages);
 		private static var sPoolTop:int = 0;
 		
 		/** @private */
@@ -269,8 +269,16 @@ package starling.display
 			// reset any object-references, to make sure we don't prevent any garbage collection
 			
             image.release();
-			image._inPool = true;
-            sPool[sPoolTop++]=image;
+			if(sPoolTop < CONFIG::PoolSizeImages) {
+				image._inPool = true;
+				sPool[sPoolTop++] = image;
+			}
         }
+		
+		/** @private */
+		starling_internal static function poolSize():int
+		{
+			return sPoolTop;
+		}
     }
 }

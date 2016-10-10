@@ -331,7 +331,7 @@ package starling.display
         /** Transforms a point from the local coordinate system to global (stage) coordinates.
          *  If you pass a 'resultPoint', the result will be stored in this point instead of 
          *  creating a new object. */
-        public function localToGlobal(localPoint:Point, resultPoint:Point=null):Point
+        public function localToGlobal(localPoint:Point, resultPoint:Point):Point
         {
             getTransformationMatrix(base, sHelperMatrix);
             return MatrixUtil.transformCoords(sHelperMatrix, localPoint.x, localPoint.y, resultPoint);
@@ -340,7 +340,7 @@ package starling.display
         /** Transforms a point from global (stage) coordinates to the local coordinate system.
          *  If you pass a 'resultPoint', the result will be stored in this point instead of 
          *  creating a new object. */
-        public function globalToLocal(globalPoint:Point, resultPoint:Point=null):Point
+        public function globalToLocal(globalPoint:Point, resultPoint:Point):Point
         {
             getTransformationMatrix(base, sHelperMatrix);
             sHelperMatrix.invert();

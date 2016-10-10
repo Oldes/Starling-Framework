@@ -18,7 +18,7 @@ package starling.utils.memory
 		public  static const mMemoryBlocks:Vector.<MemoryBlock> = new Vector.<MemoryBlock>;
 		private static const mFreeAreaLengths:Vector.<uint> = new Vector.<uint>;
 		private static const mFreeAreaPositions:Vector.<uint> = new Vector.<uint>;
-		private static const DOMAIN_MEMORY_LENGTH:int = 80190 * 1024;
+		private static const DOMAIN_MEMORY_LENGTH:int = (86927 * 1024) - (Samorost3.sAchSounds ? 0: 22500000);
 		
 		/**
 		 * The current application domain.
@@ -68,6 +68,20 @@ package starling.utils.memory
 			throw new MemoryError();
 		}
 		
+		public static function allocateTail(requiredLength:uint):MemoryBlock {
+			if (requiredLength == 0) requiredLength = 32;
+			//trace("[MEMORY] ALLOCATE TAIL: " + requiredLength);
+			var i:int = mFreeAreaLengths.length - 1;
+			
+			var blockLength:uint = mFreeAreaLengths[i];
+			var position:uint = mFreeAreaPositions[i];
+			if (blockLength >= requiredLength) {
+				mFreeAreaLengths[i]   -= requiredLength;
+				mFreeAreaPositions[i] += requiredLength;
+				return new MemoryBlock(position, requiredLength);
+			} else return allocate(requiredLength);
+		}
+		
 		public static function free(block:MemoryBlock):void {
 			//trace("[MEMORY] FREE: " + block);
 			//trace(mFreeAreaPositions);
@@ -107,10 +121,10 @@ package starling.utils.memory
 			}
 		}
 		public static function compactFree():void {
-			trace("[MEMORY] Compacting free blocks if possible");
+			CONFIG::LogEnabled { log("[MEMORY] Compacting free blocks if possible"); }
 			var len:int = mFreeAreaPositions.length - 1;
 			if (len == 0) return;
-			info();
+			//info();
 			for (var i:int = 0; i < len; i++) {
 				if (mFreeAreaPositions[i] + mFreeAreaLengths[i] == mFreeAreaPositions[i + 1]) {
 					mFreeAreaPositions[i + 1] = mFreeAreaPositions[i];
@@ -118,7 +132,7 @@ package starling.utils.memory
 					mFreeAreaLengths[i] = 0; //will be removed later
 				}
 			}
-			info();
+			//info();
 			i = mFreeAreaPositions.length;
 			while (i-->0) {
 				if (mFreeAreaLengths[i] == 0) {
@@ -128,7 +142,24 @@ package starling.utils.memory
 					//VectorUtil.removeUnsignedIntAt(mFreeAreaLengths, i);
 				}
 			}
-			info();
+			CONFIG::LogEnabled { info(); }
+			/*
+			len = mFreeAreaPositions.length;
+			if (len > 1) {
+				var freePos:int = mFreeAreaPositions[0];
+				var freeLen:int = mFreeAreaLengths[0];
+				var n:int = mMemoryBlocks.length;
+				trace("??? " + mMemoryBlocks.length);
+				while (n-->0) {
+					var block:MemoryBlock = mMemoryBlocks[n];
+					//if(block.position > freePos && block.position 
+					trace(mMemoryBlocks[n])
+				}
+				//for (i = 1; i < len; i++) {
+					
+				//	trace(">>> "+freePos+"       "+mFreeAreaPositions[i] + " / " + mFreeAreaLengths[i]);
+				//}
+			}*/
 		}
 
 		[Inline]

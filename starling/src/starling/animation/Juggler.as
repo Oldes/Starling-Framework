@@ -78,6 +78,10 @@ package starling.animation
         public function remove(object:IAnimatable):void
         {
             if (object == null) return;
+			
+			//if (object is TweenSound) {
+			//	trace("removing tw");
+			//}
             
             var dispatcher:EventDispatcher = object as EventDispatcher;
             if (dispatcher) dispatcher.removeEventListener(Event.REMOVE_FROM_JUGGLER, onRemove);
@@ -96,7 +100,10 @@ package starling.animation
                 var tween:Object = mObjects[i] as Object;
                 if (tween && tween.hasOwnProperty("target") && tween.target == target)
                 {
-                    if(tween is Tween) tween.removeEventListener(Event.REMOVE_FROM_JUGGLER, onRemove);
+                    if (tween is Tween) tween.removeEventListener(Event.REMOVE_FROM_JUGGLER, onRemove);
+					else if (tween is TweenSound) {
+						TweenSound.toPool(tween as TweenSound);
+					}
                     mObjects[i] = null;
                 }
             }
@@ -287,10 +294,13 @@ package starling.animation
         private function onRemove(event:Event):void
         {
             remove(event.target as IAnimatable);
-            
             var tween:Tween = event.target as Tween;
             if (tween && tween.isComplete)
                 add(tween.nextTween);
+			else {
+				var tweenSound:TweenSound = event.target as TweenSound;
+				if (tweenSound) TweenSound.toPool(tweenSound);
+			}
         }
         
         /** The total life time of the juggler (in seconds). */

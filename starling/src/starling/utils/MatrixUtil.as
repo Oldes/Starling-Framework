@@ -27,12 +27,10 @@ package starling.utils
         /** @private */
         public function MatrixUtil() { throw new AbstractClassError(); }
         
-        /** Converts a 2D matrix to a 3D matrix. If you pass a 'resultMatrix',  
-         *  the result will be stored in this matrix instead of creating a new object. */
-        public static function convertTo3D(matrix:Matrix, resultMatrix:Matrix3D=null):Matrix3D
+        /** Converts a 2D matrix to a 3D matrix. */
+		[Inline]
+        public static function convertTo3D(matrix:Matrix, resultMatrix:Matrix3D):Matrix3D
         {
-            if (resultMatrix == null) resultMatrix = new Matrix3D();
-            
             sRawData[0] = matrix.a;
             sRawData[1] = matrix.b;
             sRawData[4] = matrix.c;
@@ -44,13 +42,11 @@ package starling.utils
             return resultMatrix;
         }
         
-        /** Uses a matrix to transform 2D coordinates into a different space. If you pass a 
-         *  'resultPoint', the result will be stored in this point instead of creating a new object.*/
+        /** Uses a matrix to transform 2D coordinates into a different space. */
+		[Inline]
         public static function transformCoords(matrix:Matrix, x:Number, y:Number,
-                                               resultPoint:Point=null):Point
+                                               resultPoint:Point):Point
         {
-            if (resultPoint == null) resultPoint = new Point();   
-            
             resultPoint.x = matrix.a * x + matrix.c * y + matrix.tx;
             resultPoint.y = matrix.d * y + matrix.b * x + matrix.ty;
             
@@ -65,6 +61,7 @@ package starling.utils
          *  |     0            0       1 |
          *  </pre> 
          */
+		[Inline]
         public static function skew(matrix:Matrix, skewX:Number, skewY:Number):void
         {
             var sinX:Number = FastMath.sin(skewX);
@@ -81,6 +78,7 @@ package starling.utils
         }
         
         /** Prepends a matrix to 'base' by multiplying it with another matrix. */
+		[Inline]
         public static function prependMatrix(base:Matrix, prep:Matrix):void
         {
             base.setTo(base.a * prep.a + base.c * prep.b,
@@ -92,6 +90,7 @@ package starling.utils
         }
         
         /** Prepends an incremental translation to a Matrix object. */
+		[Inline]
         public static function prependTranslation(matrix:Matrix, tx:Number, ty:Number):void
         {
             matrix.tx += matrix.a * tx + matrix.c * ty;
@@ -99,6 +98,7 @@ package starling.utils
         }
         
         /** Prepends an incremental scale change to a Matrix object. */
+		[Inline]
         public static function prependScale(matrix:Matrix, sx:Number, sy:Number):void
         {
             matrix.setTo(matrix.a * sx, matrix.b * sx, 
@@ -107,6 +107,7 @@ package starling.utils
         }
         
         /** Prepends an incremental rotation to a Matrix object (angle in radians). */
+		[Inline]
         public static function prependRotation(matrix:Matrix, angle:Number):void
         {
             var sin:Number = FastMath.sin(angle);
@@ -125,6 +126,7 @@ package starling.utils
          *  |     0            0       1 |
          *  </pre> 
          */
+		[Inline]
         public static function prependSkew(matrix:Matrix, skewX:Number, skewY:Number):void
         {
             var sinX:Number = FastMath.sin(skewX);

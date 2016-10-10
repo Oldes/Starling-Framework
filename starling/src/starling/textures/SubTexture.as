@@ -262,7 +262,7 @@ package starling.textures
 			return this;
 		}
 		
-		private static var sPool:Vector.<SubTexture> = new Vector.<SubTexture>(3000);
+		private static var sPool:Vector.<SubTexture> = new Vector.<SubTexture>(CONFIG::PoolSizeSubTextures);
 		private static var sPoolTop:int = 0;
 		
 		/** @private */
@@ -283,11 +283,19 @@ package starling.textures
         {
             // reset any object-references, to make sure we don't prevent any garbage collection
             texture.release();
-			CONFIG::debug {
-				if (texture._inPool) throw new Error("[SubTexture] Already in Pool!! "+texture)
+			if(sPoolTop < CONFIG::PoolSizeSubTextures) {
+				CONFIG::debug {
+					if (texture._inPool) throw new Error("[SubTexture] Already in Pool!! "+texture)
+				}
+				texture._inPool = true;
+				sPool[sPoolTop++] = texture;
 			}
-			texture._inPool = true;
-            sPool[sPoolTop++]=texture;
         }
+		
+		/** @private */
+		starling_internal static function poolSize():int
+		{
+			return sPoolTop;
+		}
     }
 }

@@ -465,9 +465,16 @@ package starling.core
             // to avoid overloading time-based animations, the maximum delta is truncated.
             if (passedTime > 1.0) passedTime = 1.0;
 			
-			//try {
+			CONFIG::release {
+				try {
+					advanceTime(passedTime);
+				} catch ( error : Error ) {
+					showFatalError( error.message +" " +error.getStackTrace() );
+				}
+			}
+			CONFIG::debug {
 				advanceTime(passedTime);
-			//} catch ( error : Error ) {showFatalError( error.message +" " +error.getStackTrace() );}
+			}
             render();
         }
         
@@ -593,15 +600,16 @@ package starling.core
             textField.autoSize = TextFieldAutoSize.CENTER;
             textField.text = message;
             textField.x = (mStage.stageWidth  - textField.width)  / 2;
-            textField.y = (mStage.stageHeight - textField.height) / 2;
+            textField.y = (mStage.stageHeight - textField.height) / 4.5;
             textField.background = true;
-            textField.backgroundColor = 0x440000;
+            textField.backgroundColor = 0xaa0000;
 
 			mNativeStage.addChild(mNativeOverlay);
             updateNativeOverlay();
             nativeOverlay.addChild(textField);
 			
 			CONFIG::debug { trace(message); }
+			stop();
         }
         
         /** Make this Starling instance the <code>current</code> one. */
