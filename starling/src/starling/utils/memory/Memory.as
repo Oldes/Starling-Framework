@@ -47,6 +47,18 @@ package starling.utils.memory
 			mFreeAreaLengths[0] = heapSize - 1024; //length
 			mFreeAreaPositions[0] = 1024;          //position
 		}
+		public static function canAllocate(requiredLength:uint):Boolean {
+			if (requiredLength == 0) requiredLength = 32;
+			//trace("[MEMORY] ALLOCATE: " + requiredLength);
+			var len:int = mFreeAreaLengths.length;
+			var i:int = 0;
+			while (i < len) {
+				var blockLength:uint = mFreeAreaLengths[i];
+				if (blockLength >= requiredLength) return true;
+				i++;
+			}
+			return false;
+		}
 		
 		public static function allocate(requiredLength:uint):MemoryBlock {
 			if (requiredLength == 0) requiredLength = 32;
