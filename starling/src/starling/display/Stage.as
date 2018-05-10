@@ -133,6 +133,7 @@ package starling.display
             
             Starling.current.context.drawToBitmapData(destination);
             Starling.current.context.present(); // required on some platforms to avoid flickering
+			Starling.current.context.clear();
             
             return destination;
         }
